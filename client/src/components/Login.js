@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect, useReducer } from 'react';
 import { Button, Container, Form, Tab, Nav } from 'react-bootstrap'
-import { v4 as uuidV4 } from 'uuid'
 import Google from './Google'
 import Authentication from './Authentication'
 import axios from 'axios'
@@ -20,24 +19,43 @@ const InitialState = {
     password: "",
     cPassword: ""
 }
-export default function Login({ onIdSubmit }) {
+export default function Login({ onIdSubmit, setTokenValid }) {
     const idRef = useRef()
     const emailRef = useRef();
     const passwordRef = useRef();
     const cPasswordRef = useRef();
 
+    const [loginState, setLoginState] = useState({ email: "", password: "" })
     const [successMsg, setSuccessMsg] = useState("")
     const [activeKey, setActiveKey] = useState(LOGIN_KEY)
     const [state, dispatch] = useReducer(reducer, InitialState);
 
 
-    function handleSubmit(e) {
-        e.preventDefault()
-        onIdSubmit(idRef.current.value);
+
+    async function createTemporaryUser() {
+        try {
+            const response = await axios.get(URL + 'auth/temporaryUser')
+            const { refreshToken, token, id } = response.data
+
+            setCookie("token", token, 5)
+            setCookie("RefreshToken", refreshToken, 6)
+            onIdSubmit(id)
+            setTokenValid(true)
+
+        } catch (error) {
+            console.error(error.message)
+        }
     }
 
-    function createNewId() {
-        onIdSubmit(uuidV4)
+    function enterLoginInfo(e, type) {
+        setLoginState((prevLoginState) => {
+            if (type === "email") {
+                return { ...prevLoginState, email: e.target.value }
+
+            } else if (type === "password") {
+                return { ...prevLoginState, password: e.target.value }
+            }
+        })
     }
 
     function ResetInputAndMsg() {
@@ -67,30 +85,31 @@ export default function Login({ onIdSubmit }) {
                 return state
         }
     }
-    async function Login() {
+    async function UserLogin() {
         console.log("login")
         try {
-            if (passwordRef.current.value === "") {
-                passwordRef.current.classList.add('err');
+            console.log("passwordRef.current.value", loginState.password);
+            console.log("emailRef.current.value", loginState.email);
+            if (loginState.password === "") {
                 dispatch({ type: ERR.PASSWORD, payload: 'Please Fill in your Password' });
                 return
             }
 
-            if (emailRef.current.value === "") {
-                emailRef.current.classList.add('err');
+            if (loginState.email === "") {
                 dispatch({ type: ERR.EMAIL, payload: 'Please Fill in your Email' });
                 return
             }
 
             let user = {}
-            user.email = emailRef.current.value;
-            user.password = passwordRef.current.value;
+            user.email = loginState.email
+            user.password = loginState.password
 
             const response = await axios.post(URL + "auth/login", user);
             console.log("response", response)
-            const token = response.data.token;
-
+            const { token, id } = response.data;
             setCookie("token", token, 0.8);
+            onIdSubmit(id)
+            setTokenValid(true)
 
         } catch (error) {
             console.log(error.response);
@@ -156,27 +175,49 @@ export default function Login({ onIdSubmit }) {
                     </Nav>
                     <Tab.Content>
                         <Tab.Pane eventKey={LOGIN_KEY}>
-                            <Authentication type={LOGIN_KEY} emailRef={emailRef} passwordRef={passwordRef} errorRef={state} />
+                            <Form.Group>
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control type="email" value={loginState.email} required placeholder="Enter your email address" onChange={(e) => enterLoginInfo(e, 'email')} />
+                                <p className="err-message">{state.email}</p>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control type="password" value={loginState.password} required placeholder="Enter your password" onChange={(e) => enterLoginInfo(e, 'password')} />
+                                <p className="err-message">{state.password}</p>
+                            </Form.Group>
                         </Tab.Pane>
                         <Tab.Pane eventKey={REGISTER_KEY}>
-                            <Authentication type={REGISTER_KEY} emailRef={emailRef} passwordRef={passwordRef} cPasswordRef={cPasswordRef} errorRef={state} />
+                            <Form.Group>
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control type="email" ref={emailRef} required placeholder="Enter your email address" />
+                                <p className="err-message">{state.email}</p>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control type="password" ref={passwordRef} required placeholder="Enter your password" />
+                                <p className="err-message">{state.password}</p>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Comfirm Password</Form.Label>
+                                <Form.Control type="password" ref={cPasswordRef} required placeholder="Enter your confirm password" />
+                                <p className="err-message">{state.cPassword}</p>
+                            </Form.Group>
                             <p className="success-message">{successMsg}</p>
                         </Tab.Pane>
                     </Tab.Content>
                     <Tab.Content>
                         <Tab.Pane eventKey={LOGIN_KEY}>
-                            <Button type="submit" className="mr-2" eventKey={LOGIN_KEY} onClick={() => { Login() }}>Login</Button>
-                            <Button variant="secondary" className="mr-2" onClick={createNewId}>Login as a guest</Button>
-                            <Google label={"Sign In with Google"} onSubmit={onIdSubmit} />
+                            <Button type="submit" className="mr-2" onClick={() => { UserLogin() }}>Login</Button>
+                            <Button variant="secondary" className="mr-2" onClick={createTemporaryUser}>Login as a guest</Button>
+                            <Google label={"Sign In with Google"} onSubmit={onIdSubmit} setTokenValid={setTokenValid} />
                         </Tab.Pane>
                         <Tab.Pane eventKey={REGISTER_KEY}>
-                            <Button type="button" className="mr-2" eventKey={LOGIN_KEY} onClick={() => { Register() }}>Register</Button>
-                            <Google label={"Sign Up with Google"} onSubmit={onIdSubmit} />
+                            <Button type="button" className="mr-2" onClick={() => { Register() }}>Register</Button>
+                            <Google label={"Sign Up with Google"} onSubmit={onIdSubmit} setTokenValid={setTokenValid} />
                         </Tab.Pane>
                     </Tab.Content>
                 </Tab.Container>
 
-                {/* <Button type="submit" className="mr-2">Login</Button> */}
 
             </Form>
         </Container>

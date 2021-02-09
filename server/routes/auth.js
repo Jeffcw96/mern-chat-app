@@ -41,6 +41,7 @@ check('password', 'Please enter at least 6 characters').isLength({ min: 6 })],
 router.post('/login', [check('email', 'Please enter a valid email').isEmail(),
 check('password', 'Please enter at least 6 characters').isLength({ min: 6 })],
     async (req, res) => {
+        console.log("login")
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({ error: errors.array() })
@@ -68,7 +69,7 @@ check('password', 'Please enter at least 6 characters').isLength({ min: 6 })],
 
             jwt.sign(payload, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 1 }, (err, token) => {
                 if (err) throw (err);
-                res.json({ token: token })
+                res.json({ token: token, id: user.id })
             })
 
         } catch (error) {
@@ -107,10 +108,9 @@ router.post('/googleLogin', async (req, res) => {
 
                 jwt.sign(payload, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 1 }, (err, token) => {
                     if (err) throw (err);
-                    res.json({ token })
+                    res.json({ token, id: newUser.id })
                 })
 
-                res.json({ id: newUser.id })
             } else {
                 console.log("existing google user");
                 const payload = {
@@ -121,18 +121,71 @@ router.post('/googleLogin', async (req, res) => {
 
                 jwt.sign(payload, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 1 }, (err, token) => {
                     if (err) throw (err);
-                    res.json({ token })
+                    res.json({ token, id: user.id })
                 })
 
-                res.json({ id: user.id })
             }
         }
 
     } catch (error) {
         res.status(400).json({ error: "Failed to verify" })
     }
-
 })
 
+router.get('/verifyUser', async (req, res) => {
+    const authHeader = req.header("Authorization");
+    const refreshToken = req.header("RefreshToken");
+    const splitToken = authHeader.split("Bearer ");
+    const token = splitToken[1];
+
+    try {
+        jwt.verify(token, process.env.TOKEN, function (err, decoded) {
+            if (err.name === 'TokenExpiredError' || err.message === 'jwt expired') {
+                if (refreshToken) {
+                    jwt.verify(refreshToken, process.env.TOKEN, function (err, decoded) {
+                        if (err.name === 'TokenExpiredError' || err.message === 'jwt expired') {
+                            throw 'failed to verify'
+
+                        } else {
+                            const token = jwt.sign(decoded, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 5 })
+                            const refreshToken = jwt.sign(decoded, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 6 })
+                            res.json({ token, refreshToken, id: decoded.user.id })
+                            return
+                        }
+                    });
+                }
+            }
+            res.json({ token, id: decoded.user.id })
+        });
+
+    } catch (error) {
+        res.status(500).json({ error })
+    }
+})
+
+
+router.get('/temporaryUser', async (req, res) => {
+    try {
+        const userDB = new User({});
+        await userDB.save()
+
+        console.log("userDB id", userDB.id)
+
+        const payload = {
+            user: {
+                id: userDB.id
+            }
+        }
+
+
+        const token = jwt.sign(payload, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 5 })
+        const refreshToken = jwt.sign(payload, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 6 })
+        res.json({ token, refreshToken, id: userDB.id })
+
+    } catch (error) {
+        console.error("error in temporary User endpoint", error.message)
+        res.status(500).json({ error: 'failed to create temporary user' })
+    }
+})
 
 module.exports = router;

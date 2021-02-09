@@ -3,7 +3,7 @@ import { GoogleLogin } from 'react-google-login'
 import { setCookie } from './Cookie'
 import axios from 'axios'
 
-export default function Google({ label, onSubmit }) {
+export default function Google({ label, onSubmit, setTokenValid }) {
     const URL = 'http://localhost:5000/';
     async function googleSuccess(response) {
         try {
@@ -12,9 +12,10 @@ export default function Google({ label, onSubmit }) {
             const googleAcc = { id_token };
 
             const res = await axios.post(URL + 'auth/googleLogin', googleAcc);
-            const { id } = res.data;
+            const { token, id } = res.data;
+            setCookie("token", token, 0.8);
             onSubmit(id)
-
+            setTokenValid(true)
 
         } catch (error) {
             console.error(error)
