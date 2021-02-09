@@ -5,7 +5,7 @@ import Dashboard from './Dashboard'
 import { ContactsProvider } from '../contexts/ContactsProvider'
 import { ConversationsProvider } from '../contexts/ConversationsProvider'
 import { SocketProvider } from '../contexts/SocketProvider'
-
+import '../App.css'
 
 function App() {
   const [id, setId] = useLocalStorage("id")
@@ -19,7 +19,6 @@ function App() {
       </ContactsProvider>
     </SocketProvider>
   )
-
 
   return (
     id ? dashboard : <Login onIdSubmit={setId} />

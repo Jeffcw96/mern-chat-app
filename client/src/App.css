@@ -1,38 +1,23 @@
-.App {
-  text-align: center;
+.google-btn button{
+  background-color: #4285F4 !important;
+}
+.google-btn div{
+  background-color: white !important;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.google-btn span{
+  color:white !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.err{
+  border-bottom: 2px solid rgb(255, 51, 51);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.err-message{
+  color: rgb(255, 51, 51);;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.success-message{
+  color: rgb(37, 252, 30);
+  font-weight: bold;
 }
