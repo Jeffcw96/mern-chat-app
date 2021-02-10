@@ -16,20 +16,19 @@ function App() {
 
   async function verifyUser() {
     try {
-      const getRefreshToken = getCookie('refreshToken');
-      const headers = new Headers()
-      headers.append("Authorization", "Bearer " + getCookie('token'))
-
-      if (refreshToken) {
-        headers.append("RefreshToken", getRefreshToken)
-      }
-
-      const response = await axios.get(URL + "auth/verifyUser", { headers })
+      const getRefreshToken = getCookie('RefreshToken');
+      const response = await axios.get(URL + "auth/verifyUser", {
+        headers: {
+          "Authorization": "Bearer " + getCookie('token'),
+          "RefreshToken": getRefreshToken
+        }
+      })
       const { id, token, refreshToken } = response.data
 
       if (refreshToken) {
         setCookie("RefreshToken", refreshToken, 6);
         setCookie("token", token, 5);
+        console.log("id")
         setId(id)
         setTokenValid(true)
         return
@@ -38,6 +37,7 @@ function App() {
       setId(id)
       setTokenValid(true);
     } catch (error) {
+      console.log("error", error)
       setTokenValid(false);
       deleteCookie("token");
       deleteCookie("RefreshToken");

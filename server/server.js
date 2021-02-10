@@ -12,6 +12,7 @@ app.use(express.json({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 app.use("/auth", require('./routes/auth'));
+app.use("/social", require('./routes/social'));
 
 const server = http.createServer(app);
 const io = socketio(server, {

@@ -135,24 +135,34 @@ router.post('/googleLogin', async (req, res) => {
 router.get('/verifyUser', async (req, res) => {
     const authHeader = req.header("Authorization");
     const refreshToken = req.header("RefreshToken");
+
+    if (!authHeader) {
+        res.json({ msg: "login again" })
+        return
+    }
+
     const splitToken = authHeader.split("Bearer ");
     const token = splitToken[1];
 
     try {
         jwt.verify(token, process.env.TOKEN, function (err, decoded) {
-            if (err.name === 'TokenExpiredError' || err.message === 'jwt expired') {
-                if (refreshToken) {
-                    jwt.verify(refreshToken, process.env.TOKEN, function (err, decoded) {
-                        if (err.name === 'TokenExpiredError' || err.message === 'jwt expired') {
-                            throw 'failed to verify'
+            if (err) {
+                if (err.name === 'TokenExpiredError' || err.message === 'jwt expired') {
+                    if (refreshToken) {
+                        jwt.verify(refreshToken, process.env.TOKEN, function (err, decoded) {
+                            if (err) {
+                                if (err.name === 'TokenExpiredError' || err.message === 'jwt expired') {
+                                    throw 'failed to verify'
 
-                        } else {
-                            const token = jwt.sign(decoded, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 5 })
-                            const refreshToken = jwt.sign(decoded, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 6 })
-                            res.json({ token, refreshToken, id: decoded.user.id })
-                            return
-                        }
-                    });
+                                } else {
+                                    const token = jwt.sign(decoded, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 5 })
+                                    const refreshToken = jwt.sign(decoded, process.env.TOKEN, { expiresIn: 60 * 60 * 24 * 6 })
+                                    res.json({ token, refreshToken, id: decoded.user.id })
+                                    return
+                                }
+                            }
+                        });
+                    }
                 }
             }
             res.json({ token, id: decoded.user.id })
