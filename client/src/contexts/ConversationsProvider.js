@@ -2,23 +2,54 @@ import React, { useContext, useState, useEffect, useCallback } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage';
 import { useContacts } from './ContactsProvider';
 import { useSocket } from './SocketProvider';
+import { getCookie } from '../components/Cookie'
+import axios from 'axios'
 
 const ConversationsContext = React.createContext()
-
+const URL = "http://localhost:5000/"
 export function useConversations() {
     return useContext(ConversationsContext)
 }
 
 export function ConversationsProvider({ id, children }) {
-    const [conversations, setConversations] = useLocalStorage('conversations', [])
+    // const [conversations, setConversations] = useLocalStorage('conversations', [])
+    const [conversations, setConversations] = useState([])
     const [selectedConversationIndex, setSelectedConversationIndex] = useState(0)
     const { contacts } = useContacts()
     const socket = useSocket()
 
-    function createConversation(recipients) {
-        setConversations(prevConversations => {
-            return [...prevConversations, { recipients, messages: [] }]
+    useEffect(() => {
+        getConversation()
+    }, [])
+
+    async function getConversation() {
+        const response = await axios.get(URL + "chat/getConversation", {
+            headers: {
+                "Authorization": "Bearer " + getCookie("token")
+            }
         })
+        const chat = response.data.conversation;
+        setConversations(chat)
+    }
+
+    async function createConversation(recipients) {
+        // setConversations(prevConversations => {
+        //     return [...prevConversations, { recipients, messages: [] }]
+        // })
+        let conversationJson = {};
+        conversationJson.recipients = recipients;
+        conversationJson.messages = [];
+
+        const response = await axios.post(URL + "chat/addConversation", conversationJson, {
+            headers: {
+                "Authorization": "Bearer " + getCookie("token")
+            }
+        })
+
+        if (response.data.conversations) {
+            const conversations = response.data.conversations
+            setConversations(conversations)
+        }
     }
 
     const addMessageToConversation = useCallback(({ recipients, text, sender }) => {

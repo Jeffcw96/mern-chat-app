@@ -40,9 +40,11 @@ export function ContactsProvider({ children }) {
             }
         })
 
-        const contactList = response.data.contactList
+        if (response.data.contactList) {
+            const contactList = response.data.contactList
+            setContacts(contactList)
+        }
 
-        setContacts(contactList)
     }
 
     return (

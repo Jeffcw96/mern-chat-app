@@ -9,10 +9,16 @@ router.post('/addContact', auth, async (req, res) => {
         const userId = req.user.id
         console.log('userId', userId)
 
+        //$elemMatch used to find if the object key is matched inside the array
+        const allFriends = await User.findById({ _id: userId }, { friends: { $elemMatch: { id: req.body.id } } })
+        if (allFriends.friends.length !== 0) {
+            res.json({ error: 'duplicated Id' })
+            return
+        }
+
         //setting {new: true} will get the latest docs after update the document
         const response = await User.findByIdAndUpdate({ _id: userId }, { $addToSet: { friends: req.body } }, { new: true })
         res.json({ contactList: response.friends })
-
 
     } catch (error) {
         console.error(error.message)
