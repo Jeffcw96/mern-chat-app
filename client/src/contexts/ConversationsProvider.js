@@ -33,9 +33,9 @@ export function ConversationsProvider({ id, children }) {
     }
 
     async function createConversation(recipients) {
-        // setConversations(prevConversations => {
-        //     return [...prevConversations, { recipients, messages: [] }]
-        // })
+        setConversations(prevConversations => {
+            return [...prevConversations, { recipients, messages: [] }]
+        })
         let conversationJson = {};
         conversationJson.recipients = recipients;
         conversationJson.messages = [];
