@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { Form, InputGroup, Button } from 'react-bootstrap'
 import { useConversations } from '../contexts/ConversationsProvider'
+import useEventListener from '../hooks/useEventListener'
 
 export default function OpenConversation() {
     const [text, setText] = useState('')
@@ -19,6 +20,12 @@ export default function OpenConversation() {
         setText('')
     }
 
+    useEventListener('keypress', (e) => {
+        if (e.key === "Enter") {
+            sendMessage(selectedConversation.recipients.map(r => r.id), text)
+            setText('')
+        }
+    })
 
 
     return (
@@ -31,9 +38,10 @@ export default function OpenConversation() {
                             <div
                                 ref={lastMessage ? setRef : null}
                                 key={index}
-                                className={`my-1 d-flex flex-column ${message.fromMe ? 'align-self-end align-items-end' : "align-items-start"}`}
+                                className={`my-1 d-flex flex-column position-relative ${message.fromMe ? 'align-self-end align-items-end' : "align-items-start"}`}
                             >
-                                <div className={`rounded px-2 py-1 ${message.fromMe ? 'bg-primary text-white' : 'border'}`}>
+                                <div className={`${message.fromMe ? 'chat-sender-triangle' : 'chat-receiver-triangle'}`}></div>
+                                <div className={`rounded px-2 py-1 ${message.fromMe ? 'bg-primary text-white' : 'border bg-white'}`}>
                                     {message.text}
                                 </div>
                                 <div className={`text-muted small ${message.fromMe ? 'text-right' : ''}`}>
@@ -45,7 +53,7 @@ export default function OpenConversation() {
                 </div>
             </div>
             <Form onSubmit={handleSubmit}>
-                <Form.Group className="m-2">
+                <Form.Group className="m-0 mx-3">
                     <InputGroup>
                         <Form.Control
                             as="textarea"

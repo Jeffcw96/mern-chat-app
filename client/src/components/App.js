@@ -5,6 +5,7 @@ import Dashboard from './Dashboard'
 import { ContactsProvider } from '../contexts/ContactsProvider'
 import { ConversationsProvider } from '../contexts/ConversationsProvider'
 import { SocketProvider } from '../contexts/SocketProvider'
+import { ProfileProvider } from '../contexts/ProfileProvider'
 import { setCookie, getCookie, deleteCookie } from './Cookie'
 import axios from 'axios'
 import '../App.css'
@@ -54,7 +55,9 @@ function App() {
     <SocketProvider id={id}>
       <ContactsProvider>
         <ConversationsProvider id={id}>
-          <Dashboard id={id} />
+          <ProfileProvider>
+            <Dashboard id={id} />
+          </ProfileProvider>
         </ConversationsProvider>
       </ContactsProvider>
     </SocketProvider>

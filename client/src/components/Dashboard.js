@@ -8,7 +8,7 @@ export default function Dashboard({ id }) {
 
 
     return (
-        <div className="d-flex" style={{ height: '100vh' }}>
+        <div className="d-flex w-75 p-3 border border-2 mx-auto mt-3 bg-light" style={{ height: '95vh' }}>
             <Sidebar id={id} />
             {selectedConversation ? <OpenConversation /> : null}
         </div>

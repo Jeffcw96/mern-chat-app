@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
-import useLocalStorage from '../hooks/useLocalStorage';
 import { useContacts } from './ContactsProvider';
 import { useSocket } from './SocketProvider';
 import { getCookie } from '../components/Cookie'
@@ -54,11 +53,11 @@ export function ConversationsProvider({ id, children }) {
 
     const addMessageToConversation = useCallback(({ recipients, text, sender }) => {
         setConversations(prevConversations => {
-            let madeChange = false
+            let existingConversation = false
             const newMessage = { sender, text }
             const newConversations = prevConversations.map(conversation => {
                 if (arrayEquality(conversation.recipients, recipients)) {
-                    madeChange = true
+                    existingConversation = true
                     return {
                         ...conversation,
                         messages: [...conversation.messages, newMessage]
@@ -68,7 +67,7 @@ export function ConversationsProvider({ id, children }) {
                 return conversation
             })
 
-            if (madeChange) {
+            if (existingConversation) {
                 return newConversations
             } else {
                 return [

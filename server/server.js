@@ -15,6 +15,7 @@ app.use(cors());
 app.use("/auth", require('./routes/auth'));
 app.use("/social", require('./routes/social'));
 app.use("/chat", require('./routes/chat'));
+app.use("/profile", require('./routes/profile'))
 
 const server = http.createServer(app);
 const io = socketio(server, {

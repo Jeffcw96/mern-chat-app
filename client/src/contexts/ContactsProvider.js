@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect } from 'react'
-import useLocalStorage from '../hooks/useLocalStorage'
 import axios from 'axios'
 import { getCookie } from '../components/Cookie'
 
