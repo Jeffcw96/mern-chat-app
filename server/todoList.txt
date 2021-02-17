@@ -1,3 +1,9 @@
 managed to update the array object of cconversation of sender document.
 - update the receiver conversation message as well under recipients.recipients
 - check what will happen in front end
+
+17/02/2021
+-delete file after get the url
+-change image file type to webp (https://www.npmjs.com/package/sharp)
+-assign prefix of uuid + current date and time to avoid any duplicated file name
+-return file url to front end
