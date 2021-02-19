@@ -7,11 +7,16 @@ const STATICFOLDER = 'public';
 const fs = require('fs');
 const path = require('path');
 const AWS = require('aws-sdk');
+const sharp = require('sharp');
+require('dotenv').config()
+
 
 const s3 = new AWS.S3({
-    accessKeyId: 'AKIAUQDWEJMJVEIOGBGX',
-    secretAccessKey: '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'
+    accessKeyId: process.env.S3ACCESSKEY,
+    secretAccessKey: process.env.S3SECRET
 });
+
+const S3ProfileDir = 'user/'
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -41,29 +46,37 @@ router.post('/uploadProfile', auth, async (req, res) => {
                 console.log("err", err)
                 res.sendStatus(500);
             }
+            const fileName = req.file.filename.slice(0, req.file.filename.lastIndexOf("."))
             const filePath = path.join(__dirname, '../' + STATICFOLDER + '/');
-            const fileDestination = filePath + req.file.filename;
-            console.log("fileDestination", fileDestination);
-            const fileContent = fs.readFileSync(fileDestination);
+            const originalFileDestination = filePath + req.file.filename;
+            const processedFileDestination = filePath + fileName + '.webp'
 
-            // Setting up S3 upload parameters
-            const params = {
-                Bucket: 'connectmeandyou',
-                Key: 'hmmm.jpg', // File name you want to save as in S3
-                Body: fileContent,
-                ContentType: 'image/jpeg',
-                ACL: 'public-read'
-            };
+            console.log('req.file', req.file)
+            sharp(originalFileDestination).resize(500).toFile(filePath + fileName + '.webp')
+                .then(data => {
+                    console.log("webp data", data)
+                    const fileContent = fs.readFileSync(processedFileDestination);
+                    const params = {
+                        Bucket: 'connectmeandyou',
+                        Key: S3ProfileDir + fileName + '.webp', // File name you want to save as in S3
+                        Body: fileContent,
+                        ContentType: 'image/jpeg',
+                        ACL: 'public-read'
+                    };
 
-            // Uploading files to the bucket
-            s3.upload(params, function (err, data) {
-                if (err) {
-                    console.log('s3 upload err', err);
-                }
-                console.log(`File uploaded successfully. ${data.Location}`);
-            });
+                    // Uploading files to the bucket
+                    s3.upload(params, function (err, data) {
+                        if (err) {
+                            console.log('s3 upload err', err);
+                        }
+                        console.log(`File uploaded successfully. ${data.Location}`);
+                        res.json({ location: data.Location });
+                    });
 
-            res.send(req.file);
+                    fs.unlinkSync(originalFileDestination)
+                    fs.unlinkSync(processedFileDestination)
+                })
+                .catch(err => { console.log("webp err", err) })
         });
     } catch (error) {
         console.error('error in uploading profile', error.message)

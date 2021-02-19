@@ -3,7 +3,12 @@ managed to update the array object of cconversation of sender document.
 - check what will happen in front end
 
 17/02/2021
--delete file after get the url
--change image file type to webp (https://www.npmjs.com/package/sharp)
--assign prefix of uuid + current date and time to avoid any duplicated file name
--return file url to front end
+-delete file after get the url (done)
+-change image file type to webp (https://www.npmjs.com/package/sharp) (done)
+-assign prefix of uuid + current date and time to avoid any duplicated file name (done)
+-return file url to front end (done)
+
+19/2/2021
+read the given url and populate in front end
+profile form input such as email name bio password 
+api for updating user info
