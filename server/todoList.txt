@@ -9,6 +9,6 @@ managed to update the array object of cconversation of sender document.
 -return file url to front end (done)
 
 19/2/2021
-read the given url and populate in front end
-profile form input such as email name bio password 
+read the given url and populate in front end (done)
+profile form input such as email name bio password (done)
 api for updating user info

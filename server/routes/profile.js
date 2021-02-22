@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
+const { response } = require('express');
 require('dotenv').config()
 
 
@@ -40,6 +41,8 @@ router.get('/get', auth, async (req, res) => {
 })
 
 router.post('/uploadProfile', auth, async (req, res) => {
+    const userId = req.user.id
+    let userProfileImg = ""
     try {
         upload(req, res, (err) => {
             if (err) {
@@ -70,7 +73,10 @@ router.post('/uploadProfile', auth, async (req, res) => {
                             console.log('s3 upload err', err);
                         }
                         console.log(`File uploaded successfully. ${data.Location}`);
-                        res.json({ location: data.Location });
+                        userProfileImg = data.Location
+                        User.findByIdAndUpdate(userId, { picture: userProfileImg })
+                            .then(response => { console.log("done") })
+                        res.json({ location: userProfileImg });
                     });
 
                     fs.unlinkSync(originalFileDestination)
@@ -78,6 +84,8 @@ router.post('/uploadProfile', auth, async (req, res) => {
                 })
                 .catch(err => { console.log("webp err", err) })
         });
+
+
     } catch (error) {
         console.error('error in uploading profile', error.message)
         res.status(500).json({ error: error.message })

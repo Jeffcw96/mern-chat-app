@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect, useReducer } from 'react';
 import { Button, Container, Form, Tab, Nav } from 'react-bootstrap'
 import Google from './Google'
-import Authentication from './Authentication'
 import axios from 'axios'
 import { setCookie } from './Cookie'
 
@@ -12,7 +11,6 @@ const ERR = {
     EMAIL: 'email',
     PASSWORD: 'password'
 }
-const URL = "http://localhost:5000/"
 
 const InitialState = {
     email: "",
@@ -34,7 +32,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
 
     async function createTemporaryUser() {
         try {
-            const response = await axios.get(URL + 'auth/temporaryUser')
+            const response = await axios.get('auth/temporaryUser')
             const { refreshToken, token, id } = response.data
 
             setCookie("token", token, 5)
@@ -104,7 +102,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
             user.email = loginState.email
             user.password = loginState.password
 
-            const response = await axios.post(URL + "auth/login", user);
+            const response = await axios.post("auth/login", user);
             console.log("response", response)
             const { token, id } = response.data;
             setCookie("token", token, 0.8);
@@ -141,7 +139,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
             let user = {}
             user.email = emailRef.current.value;
             user.password = cPasswordRef.current.value;
-            const response = await axios.post(URL + "auth/register", user);
+            const response = await axios.post("auth/register", user);
 
             if (response.status === 200) {
                 cPasswordRef.current.value = ""

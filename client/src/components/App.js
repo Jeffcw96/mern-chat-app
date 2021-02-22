@@ -10,7 +10,7 @@ import { setCookie, getCookie, deleteCookie } from './Cookie'
 import axios from 'axios'
 import '../App.css'
 
-const URL = "http://localhost:5000/"
+
 function App() {
   const [id, setId] = useLocalStorage("id")
   const [tokenValid, setTokenValid] = useState(false)
@@ -18,7 +18,7 @@ function App() {
   async function verifyUser() {
     try {
       const getRefreshToken = getCookie('RefreshToken');
-      const response = await axios.get(URL + "auth/verifyUser", {
+      const response = await axios.get("auth/verifyUser", {
         headers: {
           "Authorization": "Bearer " + getCookie('token'),
           "RefreshToken": getRefreshToken

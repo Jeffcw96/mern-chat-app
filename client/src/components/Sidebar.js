@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Tab, Nav, Button, Modal, Image } from 'react-bootstrap'
 import Conversations from './Conversations'
 import Contacts from './Contacts'
@@ -8,6 +8,7 @@ import NewProfileModal from './NewProfileModal'
 import chatImg from '../static/chat.svg'
 import contactImg from '../static/contact-book.svg'
 import userImg from '../static/user.svg'
+import { useProfile } from '../contexts/ProfileProvider'
 
 const CONVERSATION_KEY = "conversations"
 const CONTACTS_KEY = "contacts"
@@ -16,6 +17,20 @@ export default function Sidebar({ id }) {
     const [activeKey, setActiveKey] = useState(CONVERSATION_KEY)
     const [modalOpen, setModalOpen] = useState(false)
     const [profileModalOpen, setProfileModalOpen] = useState(false)
+    const { profile } = useProfile()
+    const [profilePic, setProfilePic] = useState(() => {
+        if (profile.picture !== "" && profile.picture !== undefined) {
+            return profile.picture
+        } else {
+            return userImg
+        }
+    })
+
+    useEffect(() => {
+        setProfilePic(profile.picture)
+
+    }, [profile.picture])
+
     //return true if activeKey equal to conversation key
     const conversationOpen = activeKey === CONVERSATION_KEY
 
@@ -30,7 +45,7 @@ export default function Sidebar({ id }) {
     return (
         <div style={{ width: '250px' }} className="d-flex flex-column">
             <Tab.Container activeKey={activeKey} onSelect={setActiveKey}>
-                <Nav variant="tabs" className="justify-content-left">
+                <Nav className="justify-content-left">
                     <Nav.Item>
                         <Nav.Link eventKey={CONVERSATION_KEY}>
                             <Image src={chatImg} width="25" />
@@ -41,9 +56,9 @@ export default function Sidebar({ id }) {
                             <Image src={contactImg} width="25" />
                         </Nav.Link>
                     </Nav.Item>
-                    <Nav.Item>
+                    <Nav.Item className="d-flex align-items-center ml-4">
                         <Nav.Link onClick={() => setProfileModalOpen(true)}>
-                            <Image src={userImg} width="25" />
+                            <Image src={profilePic} width="50" />
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
