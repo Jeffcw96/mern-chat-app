@@ -22,7 +22,7 @@ export function ConversationsProvider({ id, children }) {
     }, [])
 
     async function getConversation() {
-        const response = await axios.get(URL + "chat/getConversation", {
+        const response = await axios.get("chat/getConversation", {
             headers: {
                 "Authorization": "Bearer " + getCookie("token")
             }
@@ -39,7 +39,7 @@ export function ConversationsProvider({ id, children }) {
         conversationJson.recipients = recipients;
         conversationJson.messages = [];
 
-        const response = await axios.post(URL + "chat/addConversation", conversationJson, {
+        const response = await axios.post("chat/addConversation", conversationJson, {
             headers: {
                 "Authorization": "Bearer " + getCookie("token")
             }

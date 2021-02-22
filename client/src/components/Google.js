@@ -4,14 +4,13 @@ import { setCookie } from './Cookie'
 import axios from 'axios'
 
 export default function Google({ label, onSubmit, setTokenValid }) {
-    const URL = 'http://localhost:5000/';
     async function googleSuccess(response) {
         try {
             console.log("success response", response);
             const { id_token } = response.tokenObj;
             const googleAcc = { id_token };
 
-            const res = await axios.post(URL + 'auth/googleLogin', googleAcc);
+            const res = await axios.post('auth/googleLogin', googleAcc);
             const { token, id } = res.data;
             setCookie("token", token, 0.8);
             onSubmit(id)

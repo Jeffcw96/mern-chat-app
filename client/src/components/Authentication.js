@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Container, Form, Tab, Nav } from 'react-bootstrap'
+import { Form } from 'react-bootstrap'
 
 export default function Authentication({ type, emailRef, passwordRef, cPasswordRef = null, errorRef }) {
     return (

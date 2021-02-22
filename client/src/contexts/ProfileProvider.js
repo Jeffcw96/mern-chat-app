@@ -17,7 +17,7 @@ export function ProfileProvider({ children }) {
     }, [])
 
     async function getUserProfile() {
-        const response = await axios.get(URL + "profile/get", {
+        const response = await axios.get("profile/get", {
             headers: {
                 "Authorization": "Bearer " + getCookie("token")
             }
@@ -29,7 +29,7 @@ export function ProfileProvider({ children }) {
 
 
     return (
-        <ProfileContext.Provider value={{ profile }}>
+        <ProfileContext.Provider value={{ profile, setProfile }}>
             {children}
         </ProfileContext.Provider>
     )

@@ -18,7 +18,7 @@ export function ContactsProvider({ children }) {
     }, [])
 
     async function getContacts() {
-        const response = await axios.get(URL + "social/getContact", {
+        const response = await axios.get("social/getContact", {
             headers: {
                 "Authorization": "Bearer " + getCookie("token")
             }
@@ -33,7 +33,7 @@ export function ContactsProvider({ children }) {
         contactJson.id = id;
         contactJson.name = name;
 
-        const response = await axios.post(URL + "social/addContact", contactJson, {
+        const response = await axios.post("social/addContact", contactJson, {
             headers: {
                 "Authorization": "Bearer " + getCookie("token")
             }
