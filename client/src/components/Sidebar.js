@@ -19,7 +19,7 @@ export default function Sidebar({ id }) {
     const [profileModalOpen, setProfileModalOpen] = useState(false)
     const { profile } = useProfile()
     const [profilePic, setProfilePic] = useState(() => {
-        if (profile.picture !== "" && profile.picture !== undefined) {
+        if (profile.picture !== "" && profile.picture !== undefined && profile.picture !== null) {
             return profile.picture
         } else {
             return userImg
@@ -27,8 +27,9 @@ export default function Sidebar({ id }) {
     })
 
     useEffect(() => {
-        setProfilePic(profile.picture)
-
+        if (profile.picture !== "" && profile.picture !== undefined && profile.picture !== null) {
+            setProfilePic(profile.picture)
+        }
     }, [profile.picture])
 
     //return true if activeKey equal to conversation key
@@ -58,7 +59,7 @@ export default function Sidebar({ id }) {
                     </Nav.Item>
                     <Nav.Item className="d-flex align-items-center ml-4">
                         <Nav.Link onClick={() => setProfileModalOpen(true)}>
-                            <Image src={profilePic} width="50" />
+                            <Image src={profilePic} width="25" />
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>

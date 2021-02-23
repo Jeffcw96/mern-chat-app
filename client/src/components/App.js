@@ -29,6 +29,7 @@ function App() {
       if (refreshToken) {
         setCookie("RefreshToken", refreshToken, 6);
         setCookie("token", token, 5);
+        setCookie("userRole", "tempUser", 0.8);
         console.log("id")
         setId(id)
         setTokenValid(true)
