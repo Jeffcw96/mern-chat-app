@@ -36,6 +36,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
             const { refreshToken, token, id } = response.data
 
             setCookie("token", token, 5)
+            setCookie("userRole", "tempUser", 0.8);
             setCookie("RefreshToken", refreshToken, 6)
             onIdSubmit(id)
             setTokenValid(true)
@@ -106,6 +107,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
             console.log("response", response)
             const { token, id } = response.data;
             setCookie("token", token, 0.8);
+            setCookie("userRole", "tempUser", 0.8);
             onIdSubmit(id)
             setTokenValid(true)
 

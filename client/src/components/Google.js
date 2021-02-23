@@ -13,6 +13,7 @@ export default function Google({ label, onSubmit, setTokenValid }) {
             const res = await axios.post('auth/googleLogin', googleAcc);
             const { token, id } = res.data;
             setCookie("token", token, 0.8);
+            setCookie("userRole", "google", 0.8);
             onSubmit(id)
             setTokenValid(true)
 

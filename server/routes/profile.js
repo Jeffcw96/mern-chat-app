@@ -8,7 +8,8 @@ const fs = require('fs');
 const path = require('path');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
-const { response } = require('express');
+const bcrypt = require('bcrypt');
+const { check, validationResult } = require('express-validator');
 require('dotenv').config()
 
 
@@ -92,6 +93,39 @@ router.post('/uploadProfile', auth, async (req, res) => {
     }
 })
 
+router.post("/updateInfo", auth, async (req, res) => {
+    try {
+        const updatedProfile = await User.findByIdAndUpdate(req.user.id, req.body, { new: true }).select("-password")
+        res.json({ user: updatedProfile })
+    } catch (error) {
+        console.error("error updateInfo", error.message)
+        res.status(500).json({ error: "server error" })
+    }
+})
+
+
+router.post("/updatePassword", [[
+    check('newPassword', 'Please enter a password with 6 or more characters').isLength({ min: 6 })], auth], async (req, res) => {
+        try {
+            const user = await User.findById(req.user.id).select("password");
+            const isMatch = await bcrypt.compare(req.body.password, user.password);
+
+            if (!isMatch) {
+                res.status(400).json({ error: 'Invalid Credential' })
+                return
+            }
+            const updatedProfile = {}
+            const salt = await bcrypt.genSalt(10);
+            updatedProfile.password = await bcrypt.hash(req.body.newPassword, salt);
+            await User.findByIdAndUpdate(req.user.id, updatedProfile);
+
+            res.send("ok")
+
+        } catch (error) {
+            console.error("error update password", error.message)
+            res.status(500).json({ error: error.message })
+        }
+    })
 
 
 module.exports = router
