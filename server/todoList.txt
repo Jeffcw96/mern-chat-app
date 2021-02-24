@@ -11,4 +11,10 @@ managed to update the array object of cconversation of sender document.
 19/2/2021
 read the given url and populate in front end (done)
 profile form input such as email name bio password (done)
-api for updating user info
+api for updating user info (done)
+api for reset password (done)
+
+23/2/2021
+show more info in friend list (name, bio)
+forgot password email template 
+
