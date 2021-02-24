@@ -95,6 +95,16 @@ router.post('/uploadProfile', auth, async (req, res) => {
 
 router.post("/updateInfo", auth, async (req, res) => {
     try {
+        const email = req.body.email;
+        console.log("email", email)
+        if (email !== undefined && email !== null && email !== "") {
+            const isEmailExisted = await User.findOne({ email: req.body.email })
+            console.log("isEmailExisted", isEmailExisted)
+            if (isEmailExisted) {
+                res.status(400).json({ error: "Email is existed" })
+                return
+            }
+        }
         const updatedProfile = await User.findByIdAndUpdate(req.user.id, req.body, { new: true }).select("-password")
         res.json({ user: updatedProfile })
     } catch (error) {
@@ -107,18 +117,21 @@ router.post("/updateInfo", auth, async (req, res) => {
 router.post("/updatePassword", [[
     check('newPassword', 'Please enter a password with 6 or more characters').isLength({ min: 6 })], auth], async (req, res) => {
         try {
-            const user = await User.findById(req.user.id).select("password");
-            const isMatch = await bcrypt.compare(req.body.password, user.password);
-
-            if (!isMatch) {
-                res.status(400).json({ error: 'Invalid Credential' })
-                return
-            }
-            const updatedProfile = {}
+            const userRole = req.header("UserRole");
             const salt = await bcrypt.genSalt(10);
+            const user = await User.findById(req.user.id).select("password");
+
+            if (userRole !== "tempUser") {
+                const isMatch = await bcrypt.compare(req.body.password, user.password);
+                if (!isMatch) {
+                    res.status(400).json({ error: 'Invalid Credential' })
+                    return
+                }
+            }
+
+            const updatedProfile = {}
             updatedProfile.password = await bcrypt.hash(req.body.newPassword, salt);
             await User.findByIdAndUpdate(req.user.id, updatedProfile);
-
             res.send("ok")
 
         } catch (error) {

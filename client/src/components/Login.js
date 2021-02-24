@@ -87,8 +87,6 @@ export default function Login({ onIdSubmit, setTokenValid }) {
     async function UserLogin() {
         console.log("login")
         try {
-            console.log("passwordRef.current.value", loginState.password);
-            console.log("emailRef.current.value", loginState.email);
             if (loginState.password === "") {
                 dispatch({ type: ERR.PASSWORD, payload: 'Please Fill in your Password' });
                 return
@@ -107,7 +105,6 @@ export default function Login({ onIdSubmit, setTokenValid }) {
             console.log("response", response)
             const { token, id } = response.data;
             setCookie("token", token, 0.8);
-            setCookie("userRole", "tempUser", 0.8);
             onIdSubmit(id)
             setTokenValid(true)
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Modal, Form, Button, Tab, Nav } from 'react-bootstrap'
 import axios from 'axios'
-import { getCookie } from '../components/Cookie'
+import { getCookie, deleteCookie } from '../components/Cookie'
 import { useProfile } from '../contexts/ProfileProvider'
 import userProfilePic from '../static/user.svg'
 import uploadPhotoIcon from '../static/camera.svg'
@@ -23,12 +23,16 @@ export default function NewProfileModal({ closeProfileModal }) {
     const { profile, setProfile } = useProfile()
     const [updatedProfile, setUpdatedProfile] = useState(profile)
     const [passwordErr, setPasswordErr] = useState("");
+    const [profileErr, setProfileErr] = useState("")
     const [authInfo, setAuthInfo] = useState(authInit)
+    const [isGoogleAcc, setIsGoogleAcc] = useState(false)
+    const [isNotTempAcc, setIsNotTempAcc] = useState(true);
+    const userEmailRef = useRef();
     const saveBtn = useRef();
     const updateBtn = useRef();
     const authIconTab = useRef();
-    const iconTabContainer = useRef();
     const profileIconTab = useRef();
+
 
     const [profilePic, setProfilePic] = useState(() => {
         if (profile.picture !== "" && profile.picture !== undefined) {
@@ -78,6 +82,9 @@ export default function NewProfileModal({ closeProfileModal }) {
         try {
             e.preventDefault()
             let jsonBody = {}
+            if (getCookie("userRole") === "tempUser") {
+                jsonBody.email = userEmailRef.current.value.trim()
+            }
             jsonBody.name = updatedProfile.name;
             jsonBody.bio = updatedProfile.bio;
 
@@ -88,9 +95,17 @@ export default function NewProfileModal({ closeProfileModal }) {
             })
 
             setProfile(response.data.user)
+            const { email } = response.data.user
+
+            if (email) {
+                setIsNotTempAcc(true)
+            }
+
+            setProfileErr("")
             saveBtn.current.classList.remove("d-block");
         } catch (error) {
             console.error("error", error.message)
+            setProfileErr(error.response.data.error)
         }
     }
 
@@ -103,13 +118,17 @@ export default function NewProfileModal({ closeProfileModal }) {
 
             const response = await axios.post('profile/updatePassword', jsonBody, {
                 headers: {
-                    "Authorization": "Bearer " + getCookie("token")
+                    "Authorization": "Bearer " + getCookie("token"),
+                    "UserRole": getCookie("userRole")
                 }
             })
 
             if (response.status === 200) {
-                setPasswordErr("")
-                closeProfileModal()
+                setPasswordErr("");
+                closeProfileModal();
+                if (getCookie("userRole") === "tempUser") {
+                    deleteCookie("userRole")
+                }
             }
 
         } catch (error) {
@@ -141,6 +160,13 @@ export default function NewProfileModal({ closeProfileModal }) {
         updateBtn.current.classList.add("d-block");
     }
 
+    function handleEmailChange(e) {
+        if (userEmailRef.current.value !== "") {
+            saveBtn.current.classList.add("d-block");
+        }
+    }
+
+
     useEffect(() => {
 
         if (ObjectEqual(updatedProfile, profile)) {
@@ -166,12 +192,17 @@ export default function NewProfileModal({ closeProfileModal }) {
             authIconTab.current.classList.add('d-none');
             profileIconTab.current.classList.add('d-block');
             profileIconTab.current.classList.remove('d-none');
+            setProfileErr("")
         }
     }, [activeKey])
 
     useEffect(() => {
         if (getCookie("userRole") === "google") {
-            iconTabContainer.current.classList.add("d-none");
+            setIsGoogleAcc(true)
+        } else if (getCookie("userRole") === "tempUser") {
+            if (profile.email === null || profile.email === "" || profile.email === undefined) {
+                setIsNotTempAcc(false)
+            }
         }
     }, [])
 
@@ -180,14 +211,18 @@ export default function NewProfileModal({ closeProfileModal }) {
             <Modal.Header closeButton>Your Profile</Modal.Header>
             <Modal.Body>
                 <Tab.Container activeKey={activeKey} onSelect={setActiveKey}>
-                    <div className="swap-icon-container" ref={iconTabContainer}>
-                        <Nav.Link eventKey={AUTH_CONTENT} className="swap-icon-link" ref={authIconTab}>
-                            <img src={authIcon} className="swap-profile-modal-icon" alt="profile picture" />
-                        </Nav.Link>
-                        <Nav.Link eventKey={PROFILE_CONTENT} className="swap-icon-link d-none" ref={profileIconTab}>
-                            <img src={userProfilePic} className="swap-profile-modal-icon" alt="profile picture" />
-                        </Nav.Link>
-                    </div>
+                    {
+                        !isGoogleAcc ?
+                            <div className="swap-icon-container">
+                                <Nav.Link eventKey={AUTH_CONTENT} className="swap-icon-link" ref={authIconTab}>
+                                    <img src={authIcon} className="swap-profile-modal-icon" alt="profile picture" />
+                                </Nav.Link>
+                                <Nav.Link eventKey={PROFILE_CONTENT} className="swap-icon-link d-none" ref={profileIconTab}>
+                                    <img src={userProfilePic} className="swap-profile-modal-icon" alt="profile picture" />
+                                </Nav.Link>
+                            </div> :
+                            null
+                    }
                     <Tab.Content>
                         <Tab.Pane eventKey={PROFILE_CONTENT}>
                             <div className="profile-pic-container">
@@ -204,7 +239,7 @@ export default function NewProfileModal({ closeProfileModal }) {
                                 </Form.Group>
                                 <Form.Group className="d-flex justify-content-between align-items-center my-4 px-5">
                                     <Form.Label className=" w-25">Email:</Form.Label>
-                                    <Form.Control type="text" className="w-75" disabled value={updatedProfile.email} />
+                                    <Form.Control type="text" className="w-75" disabled={isNotTempAcc} value={updatedProfile.email} ref={userEmailRef} onChange={(e) => handleEmailChange(e)} />
                                 </Form.Group>
                                 <Form.Group className="d-flex justify-content-between align-items-center my-4 px-5">
                                     <Form.Label className="w-25">Name:</Form.Label>
@@ -214,6 +249,7 @@ export default function NewProfileModal({ closeProfileModal }) {
                                     <Form.Label className="w-25">Bio:</Form.Label>
                                     <Form.Control type="text" className="w-75" onChange={(e) => handleUserInfo(e, BIO)} value={updatedProfile.bio} />
                                 </Form.Group>
+                                <p className="px-5" style={{ color: "red" }}>{profileErr}</p>
                                 <Form.Group className="d-none text-right my-4 px-5" ref={saveBtn}>
                                     <Button type="submit">Save</Button>
                                 </Form.Group>
@@ -222,11 +258,11 @@ export default function NewProfileModal({ closeProfileModal }) {
                         <Tab.Pane eventKey={AUTH_CONTENT}>
                             <Form onSubmit={handlePasswordSubmit}>
                                 <Form.Group className="d-flex justify-content-between align-items-center my-4 px-5">
-                                    <Form.Label className="w-25">Current Password:</Form.Label>
+                                    <Form.Label className="w-25">{isNotTempAcc ? "Current" : "New"} Password:</Form.Label>
                                     <Form.Control type="password" className="w-75" value={authInfo.password} onChange={(e) => handlePasswordInput(e, PASSWORD)} />
                                 </Form.Group>
                                 <Form.Group className="d-flex justify-content-between align-items-center my-4 px-5">
-                                    <Form.Label className=" w-25">New Password:</Form.Label>
+                                    <Form.Label className=" w-25">{isNotTempAcc ? "New" : "Confirm"} Password:</Form.Label>
                                     <Form.Control type="password" className="w-75" value={authInfo.newPassword} onChange={(e) => handlePasswordInput(e, NEWPASSWORD)} />
                                 </Form.Group>
                                 <p className="px-5" style={{ color: "red" }}>{passwordErr}</p>
