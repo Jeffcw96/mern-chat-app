@@ -140,5 +140,29 @@ router.post("/updatePassword", [[
         }
     })
 
+router.post("/friendsProfile", auth, async (req, res) => {
+    try {
+        const { contacts } = req.body
+        let updatedFriendList = []
+        for (let contact of contacts) {
+            const user = await User.findById(contact.id, { new: true }).select("picture");
+            console.log("friend picture", user.picture)
+            if (user.picture !== undefined) {
+                const contactJson = { ...contact, avatar: user.picture }
+                updatedFriendList.push(contactJson)
+            } else {
+                updatedFriendList.push(contact)
+            }
+        }
+
+        res.json({ contacts: updatedFriendList })
+
+
+    } catch (error) {
+        console.error("error", error.message)
+        res.status(500).json({ error: error.message })
+    }
+})
+
 
 module.exports = router
