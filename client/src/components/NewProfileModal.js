@@ -226,7 +226,7 @@ export default function NewProfileModal({ closeProfileModal }) {
                     <Tab.Content>
                         <Tab.Pane eventKey={PROFILE_CONTENT}>
                             <div className="profile-pic-container">
-                                <img src={profilePic} className="profile-pic" alt="profile picture" />
+                                <img src={profilePic} className="avatar" alt="profile picture" style={{ width: '200px', height: '200px' }} />
                                 <label htmlFor="profilePic" className="upload-profile-pic-container">
                                     <img src={uploadPhotoIcon} className="upload-profile-pic-logo" alt="update profile picture icon" />
                                 </label>

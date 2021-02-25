@@ -145,14 +145,15 @@ router.post("/friendsProfile", auth, async (req, res) => {
         const { contacts } = req.body
         let updatedFriendList = []
         for (let contact of contacts) {
-            const user = await User.findById(contact.id, { new: true }).select("picture");
+            const user = await User.findById(contact.id, { new: true }).select("picture bio");
             console.log("friend picture", user.picture)
             if (user.picture !== undefined) {
-                const contactJson = { ...contact, avatar: user.picture }
+                const contactJson = { ...contact, avatar: user.picture, bio: user.bio }
                 updatedFriendList.push(contactJson)
             } else {
                 updatedFriendList.push(contact)
             }
+
         }
 
         res.json({ contacts: updatedFriendList })
@@ -164,5 +165,14 @@ router.post("/friendsProfile", auth, async (req, res) => {
     }
 })
 
+router.get('/friendDetails', auth, async (req, res) => {
+    try {
+        const friendDetail = await User.findById(req.query.id)
+        res.json({ friend: friendDetail })
+    } catch (error) {
+        console.error("error", error.message)
+        res.status(500).json({ error: error.message })
+    }
+})
 
 module.exports = router
