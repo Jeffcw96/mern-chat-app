@@ -11,12 +11,13 @@ export default function Contacts() {
     const [latestContacts, setLatestContact] = useState(null)
     const [friendModalOpen, setFriendModalOpen] = useState(false)
     const [friendDetails, setFriendDetails] = useState(null)
+    const [name, setName] = useState("")
 
-    function closeProfileModal() {
+    function closeFriendModal() {
         setFriendModalOpen(false)
     }
 
-    async function openFriendDetailModal(id) {
+    async function openFriendDetailModal(id, name) {
         try {
             const response = await axios.get("profile/friendDetails?id=" + id, {
                 headers: {
@@ -25,6 +26,7 @@ export default function Contacts() {
             })
 
             setFriendDetails(response.data.friend)
+            setName(name)
             setFriendModalOpen(true)
         } catch (error) {
             console.error("error", error.message)
@@ -71,7 +73,7 @@ export default function Contacts() {
                 {latestContacts !== null ?
                     latestContacts.map(contact => (
                         <>
-                            <ListGroup.Item key={contact.id} onClick={() => openFriendDetailModal(contact.id)} className="contact-info">
+                            <ListGroup.Item key={contact.id} onClick={() => openFriendDetailModal(contact.id, contact.name)} className="contact-info">
                                 <div className="d-flex align-items-center">
                                     <div className="avatar-container">
                                         {
@@ -96,7 +98,7 @@ export default function Contacts() {
                 }
             </ListGroup>
             <Modal show={friendModalOpen} onHide={setFriendModalOpen}>
-                {friendModalOpen ? <FriendDetailModal friend={friendDetails} /> : null}
+                {friendModalOpen ? <FriendDetailModal friend={friendDetails} name={name} closeFriendModal={closeFriendModal} /> : null}
             </Modal>
         </>
     )

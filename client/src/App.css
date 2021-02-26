@@ -111,3 +111,11 @@
 .contact-info:hover{
   background: #f7faff;
 }
+
+.logout{
+  max-width: 35px;
+  position: absolute;
+  right: -10vw;
+  top: -5px;
+  cursor: pointer;
+}

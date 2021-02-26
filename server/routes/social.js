@@ -39,4 +39,21 @@ router.get('/getContact', auth, async (req, res) => {
     }
 })
 
+router.post('/updateName', auth, async (req, res) => {
+    console.log("update Contact name")
+    try {
+        const userId = req.user.id;
+        const friendId = req.body.id;
+        const updatedName = req.body.name;
+        const response = await User.findOneAndUpdate({ $and: [{ _id: userId }, { "friends.id": friendId }] }, { "friends.$.name": updatedName }, { new: true })
+
+        console.log("response.friends", response)
+        res.json({ friends: response.friends })
+
+    } catch (error) {
+        console.error(error.message)
+        res.status(500).json({ error: "Server error" })
+    }
+})
+
 module.exports = router;
