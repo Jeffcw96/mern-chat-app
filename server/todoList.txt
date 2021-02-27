@@ -16,6 +16,6 @@ api for reset password (done)
 
 23/2/2021
 understand usecallback
-show more info in friend list (name, bio)
+show more info in friend list (name, bio) (done)
 forgot password email template 
 
