@@ -6,6 +6,7 @@ import { setCookie } from './Cookie'
 
 const REGISTER_KEY = "register"
 const LOGIN_KEY = "login"
+const RESET_KEY = "reset"
 const ERR = {
     REGISTER: 'cPassword',
     EMAIL: 'email',
@@ -18,15 +19,16 @@ const InitialState = {
     cPassword: ""
 }
 export default function Login({ onIdSubmit, setTokenValid }) {
-    const idRef = useRef()
     const emailRef = useRef();
     const passwordRef = useRef();
     const cPasswordRef = useRef();
+    const resetPasswordMsg = useRef();
 
-    const [loginState, setLoginState] = useState({ email: "", password: "" })
-    const [successMsg, setSuccessMsg] = useState("")
+    const [loginState, setLoginState] = useState({ email: "", password: "" });
+    const [successMsg, setSuccessMsg] = useState("");
     const [activeKey, setActiveKey] = useState(LOGIN_KEY)
     const [state, dispatch] = useReducer(reducer, InitialState);
+    const [forgotEmail, setForgotEmail] = useState("");
 
 
 
@@ -157,6 +159,24 @@ export default function Login({ onIdSubmit, setTokenValid }) {
 
     }
 
+    async function Reset() {
+        try {
+            let user = {}
+            user.email = forgotEmail
+            const response = await axios.post("auth/forgotPassword", user);
+
+            if (response.status === 200) {
+                resetPasswordMsg.current.value = "Please check you email for reset password"
+                resetPasswordMsg.current.classList.remove("err-message")
+                resetPasswordMsg.current.classList.add("success-message")
+            }
+        } catch (error) {
+            resetPasswordMsg.current.value = error.response.data
+            resetPasswordMsg.current.classList.remove("err-message")
+            resetPasswordMsg.current.classList.add("success-message")
+        }
+    }
+
     return (
         <Container className="align-items-center d-flex" style={{ height: '100vh' }}>
             {/* onSubmit={handleSubmit} */}
@@ -168,6 +188,9 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link eventKey={REGISTER_KEY}>Register</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                            <Nav.Link eventKey={RESET_KEY}>Forgot Password</Nav.Link>
                         </Nav.Item>
                     </Nav>
                     <Tab.Content>
@@ -201,6 +224,13 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                             </Form.Group>
                             <p className="success-message">{successMsg}</p>
                         </Tab.Pane>
+                        <Tab.Pane eventKey={RESET_KEY}>
+                            <Form.Group>
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control type="email" value={forgotEmail} required placeholder="Enter your email address" onChange={(e) => setForgotEmail(e.target.value)} />
+                            </Form.Group>
+                            <p className="success-message" ref={resetPasswordMsg}></p>
+                        </Tab.Pane>
                     </Tab.Content>
                     <Tab.Content>
                         <Tab.Pane eventKey={LOGIN_KEY}>
@@ -211,6 +241,9 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                         <Tab.Pane eventKey={REGISTER_KEY}>
                             <Button type="button" className="mr-2" onClick={() => { Register() }}>Register</Button>
                             <Google label={"Sign Up with Google"} onSubmit={onIdSubmit} setTokenValid={setTokenValid} />
+                        </Tab.Pane>
+                        <Tab.Pane eventKey={RESET_KEY}>
+                            <Button type="button" className="mr-2" onClick={() => { Reset() }}>Submit</Button>
                         </Tab.Pane>
                     </Tab.Content>
                 </Tab.Container>
