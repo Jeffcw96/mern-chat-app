@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react'
 import Login from './Login'
 import useLocalStorage from '../hooks/useLocalStorage'
 import Dashboard from './Dashboard'
+import ResetPassword from './ResetPassword.js'
 import { ContactsProvider } from '../contexts/ContactsProvider'
 import { ConversationsProvider } from '../contexts/ConversationsProvider'
 import { SocketProvider } from '../contexts/SocketProvider'
 import { ProfileProvider } from '../contexts/ProfileProvider'
 import { setCookie, getCookie, deleteCookie } from './Cookie'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import axios from 'axios'
 import '../App.css'
 
@@ -65,7 +67,13 @@ function App() {
   )
 
   return (
-    id && tokenValid ? dashboard : <Login onIdSubmit={setId} setTokenValid={setTokenValid} />
+    <Router>
+      <Switch>
+        <Route path="/" exact component={id && tokenValid ? (<Dashboard id={id} />) : (<Login onIdSubmit={setId} setTokenValid={setTokenValid} />)} />
+        <Route path="/resetPassword" component={ResetPassword} />
+      </Switch>
+    </Router>
+
   );
 }
 
