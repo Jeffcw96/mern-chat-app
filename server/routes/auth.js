@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const path = require('path');
+const axios = require('axios')
+const fs = require('fs');
 const { check, validationResult } = require('express-validator');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
@@ -204,41 +207,77 @@ router.get('/temporaryUser', async (req, res) => {
     }
 })
 
-router.post('/forgotPassword', async (req, res) => {
+router.post('/forgotPassword', [check('email', 'Please enter a valid email').isEmail()], async (req, res) => {
     try {
+        const errors = await validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: 'Please enter a valid email' })
+        }
         const { email } = req.body;
+        const isExist = await User.findOne({ email })
+
+        if (!isExist) {
+            return res.status(400).json({ error: 'Email not exist' })
+        }
+
 
         // Create sendEmail params 
+        // var params = {
+        //     Destination: {
+        //         CcAddresses: [],
+        //         ToAddresses: [
+        //             email,
+        //             /* more items */
+        //         ]
+        //     },
+        //     Message: {
+        //         Body: {
+        //             Html: {
+        //                 Charset: "UTF-8",
+        //                 Data: "HTML_FORMAT_BODY"
+        //             },
+        //             Text: {
+        //                 Charset: "UTF-8",
+        //                 Data: "TEXT_FORMAT_BODY"
+        //             }
+        //         },
+        //         Subject: {
+        //             Charset: 'UTF-8',
+        //             Data: 'Reset your password'
+        //         }
+        //     },
+        //     Source: process.env.SESSENDER, /* required */
+        //     ReplyToAddresses: [],
+        // };
+        // Create sendTemplatedEmail params 
+        let HTMLBody = ""
+        fs.readFile(__dirname + '../../email_template/resetPassword.html', 'utf8', function (err, html) {
+            console.log("err", err)
+            console.log("html", html)
+            HTMLBody = html
+        })
+        console.log("html body", HTMLBody)
         var params = {
-            Destination: {
+            Destination: { /* required */
                 CcAddresses: [],
                 ToAddresses: [
-                    'success@simulator.amazonses.com',
-                    /* more items */
+                    email,
+                    /* more To email addresses */
                 ]
             },
-            Message: {
-                Body: {
-                    Html: {
-                        Charset: "UTF-8",
-                        Data: "HTML_FORMAT_BODY"
-                    },
-                    Text: {
-                        Charset: "UTF-8",
-                        Data: "TEXT_FORMAT_BODY"
-                    }
-                },
-                Subject: {
-                    Charset: 'UTF-8',
-                    Data: 'Test email'
-                }
-            },
             Source: process.env.SESSENDER, /* required */
+            Template: { /* required */
+                TemplateName: 'STRING_VALUE', /* required */
+                HtmlPart: HTMLBody,
+                SubjectPart: 'Forgot Password',
+                TextPart: 'Reset your password'
+            },
+            TemplateData: '', /* required */
             ReplyToAddresses: [],
         };
 
         // Create the promise and SES service object
-        var sendPromise = ses.sendEmail(params).promise();
+        var sendPromise = ses.sendTemplatedEmail(params).promise();
         const data = await sendPromise;
         console.log('data.MessageId', data.MessageId)
 
