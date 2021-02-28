@@ -5,7 +5,13 @@ const bcrypt = require('bcrypt');
 const { check, validationResult } = require('express-validator');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
+var AWS = require('aws-sdk');
+AWS.config.update({ region: 'ap-southeast-1' });
 require('dotenv').config()
+const ses = new AWS.SES({
+    accessKeyId: process.env.S3ACCESSKEY,
+    secretAccessKey: process.env.S3SECRET
+});
 
 router.post('/register', [check('email', 'Please enter a valid email').isEmail(),
 check('password', 'Please enter at least 6 characters').isLength({ min: 6 })],
@@ -195,6 +201,50 @@ router.get('/temporaryUser', async (req, res) => {
     } catch (error) {
         console.error("error in temporary User endpoint", error.message)
         res.status(500).json({ error: 'failed to create temporary user' })
+    }
+})
+
+router.post('/forgotPassword', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Create sendEmail params 
+        var params = {
+            Destination: {
+                CcAddresses: [],
+                ToAddresses: [
+                    'success@simulator.amazonses.com',
+                    /* more items */
+                ]
+            },
+            Message: {
+                Body: {
+                    Html: {
+                        Charset: "UTF-8",
+                        Data: "HTML_FORMAT_BODY"
+                    },
+                    Text: {
+                        Charset: "UTF-8",
+                        Data: "TEXT_FORMAT_BODY"
+                    }
+                },
+                Subject: {
+                    Charset: 'UTF-8',
+                    Data: 'Test email'
+                }
+            },
+            Source: process.env.SESSENDER, /* required */
+            ReplyToAddresses: [],
+        };
+
+        // Create the promise and SES service object
+        var sendPromise = ses.sendEmail(params).promise();
+        const data = await sendPromise;
+        console.log('data.MessageId', data.MessageId)
+
+    } catch (error) {
+        console.error("forgot password error", error.message);
+        res.status(500).json({ error: error.message })
     }
 })
 
