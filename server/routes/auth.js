@@ -220,42 +220,16 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
             return res.status(400).json({ error: 'Email not exist' })
         }
 
-        let HTMLBody = ""
-        fs.readFile(__dirname + '../../email_template/resetPassword.html', 'utf8', function (err, html) {
-            console.log("err", err)
-            console.log("html", html)
-        })
+        const payload = {
+            user: {
+                email: email
+            }
+        }
 
-
-        //Create sendEmail params 
-        // var params = {
-        //     Destination: {
-        //         CcAddresses: [],
-        //         ToAddresses: [
-        //             email,
-        //             /* more items */
-        //         ]
-        //     },
-        //     Message: {
-        //         Body: {
-        //             Html: {
-        //                 Charset: "UTF-8",
-        //                 Data: HTMLBody
-        //             },
-        //             Text: {
-        //                 Charset: "UTF-8",
-        //                 Data: "TEXT_FORMAT_BODY"
-        //             }
-        //         },
-        //         Subject: {
-        //             Charset: 'UTF-8',
-        //             Data: 'Reset your password'
-        //         }
-        //     },
-        //     Source: process.env.SESSENDER, /* required */
-        //     ReplyToAddresses: [],
-        // };
-        // Create sendTemplatedEmail params 
+        const token = jwt.sign(
+            payload,
+            process.env.TOKEN,
+            { expiresIn: '1800s' });
 
         var params = {
             Destination: { /* required */
@@ -266,33 +240,56 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
                 ]
             },
             Source: process.env.SESSENDER, /* required */
-            Template: 'anotherTest',
-            TemplateData: JSON.stringify(""), /* required */
+            Template: 'forgotPassword',
+            TemplateData: `{\"reset\":{\"token\":\"${token}\"}}`,
             ReplyToAddresses: [],
         };
 
-        // var params = {
-        //     Template: { /* required */
-        //         TemplateName: 'anotherTest', /* required */
-        //         HtmlPart: '<style>h1{color:red;}</style><h1>HELLO WORLD</h1><h2>HAHA</h2>',
-        //         SubjectPart: 'Hello world babe',
-        //         TextPart: 'Show me the money'
-        //     }
-        // };
-        // ses.createTemplate(params, function (err, data) {
-        //     if (err) console.log(err, err.stack); // an error occurred
-        //     else console.log(data);           // successful response
-        // });
 
         // Create the promise and SES service object
         var sendPromise = ses.sendTemplatedEmail(params).promise();
         const data = await sendPromise;
         console.log('data.MessageId', data.MessageId)
 
+        res.send("ok")
+
     } catch (error) {
         console.error("forgot password error", error.message);
         res.status(500).json({ error: error.message })
     }
 })
+
+function deleteEmailTemplate(name) {
+    var params = {
+        TemplateName: name /* required */
+    };
+    ses.deleteTemplate(params, function (err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        else console.log(data);           // successful response
+    });
+}
+
+function createEmailTemplate(templateName, htmlBody, subject, text = "Please contact us") {
+    var params = {
+        Template: { /* required */
+            TemplateName: templateName, /* required */
+            HtmlPart: htmlBody,
+            SubjectPart: subject,
+            TextPart: text
+        }
+    };
+
+    ses.createTemplate(params, function (err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        else console.log(data);           // successful response
+    });
+}
+
+function readHTMLFileAndCreateEmailTemplate(path, templateName, subject, text = "Please contact us") {
+    //Path example: __dirname + '../../email_template/resetPassword.html'
+    fs.readFile(__dirname + path, 'utf8', function (err, html) {
+        createEmailTemplate(templateName, html, subject, text);
+    })
+}
 
 module.exports = router;
