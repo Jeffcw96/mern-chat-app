@@ -220,8 +220,14 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
             return res.status(400).json({ error: 'Email not exist' })
         }
 
+        let HTMLBody = ""
+        fs.readFile(__dirname + '../../email_template/resetPassword.html', 'utf8', function (err, html) {
+            console.log("err", err)
+            console.log("html", html)
+        })
 
-        // Create sendEmail params 
+
+        //Create sendEmail params 
         // var params = {
         //     Destination: {
         //         CcAddresses: [],
@@ -234,7 +240,7 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
         //         Body: {
         //             Html: {
         //                 Charset: "UTF-8",
-        //                 Data: "HTML_FORMAT_BODY"
+        //                 Data: HTMLBody
         //             },
         //             Text: {
         //                 Charset: "UTF-8",
@@ -250,13 +256,7 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
         //     ReplyToAddresses: [],
         // };
         // Create sendTemplatedEmail params 
-        let HTMLBody = ""
-        fs.readFile(__dirname + '../../email_template/resetPassword.html', 'utf8', function (err, html) {
-            console.log("err", err)
-            console.log("html", html)
-            HTMLBody = html
-        })
-        console.log("html body", HTMLBody)
+
         var params = {
             Destination: { /* required */
                 CcAddresses: [],
@@ -266,15 +266,23 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
                 ]
             },
             Source: process.env.SESSENDER, /* required */
-            Template: { /* required */
-                TemplateName: 'STRING_VALUE', /* required */
-                HtmlPart: HTMLBody,
-                SubjectPart: 'Forgot Password',
-                TextPart: 'Reset your password'
-            },
-            TemplateData: '', /* required */
+            Template: 'anotherTest',
+            TemplateData: JSON.stringify(""), /* required */
             ReplyToAddresses: [],
         };
+
+        // var params = {
+        //     Template: { /* required */
+        //         TemplateName: 'anotherTest', /* required */
+        //         HtmlPart: '<style>h1{color:red;}</style><h1>HELLO WORLD</h1><h2>HAHA</h2>',
+        //         SubjectPart: 'Hello world babe',
+        //         TextPart: 'Show me the money'
+        //     }
+        // };
+        // ses.createTemplate(params, function (err, data) {
+        //     if (err) console.log(err, err.stack); // an error occurred
+        //     else console.log(data);           // successful response
+        // });
 
         // Create the promise and SES service object
         var sendPromise = ses.sendTemplatedEmail(params).promise();
