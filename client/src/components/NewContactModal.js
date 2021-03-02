@@ -1,18 +1,24 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Modal, Form, Button } from 'react-bootstrap'
 import { useContacts } from '../contexts/ContactsProvider'
 
 export default function NewContactModal({ closeModal }) {
-
+    const [addFriendErr, setAddFriendErr] = useState("")
     const idRef = useRef();
     const nameRef = useRef();
     const { createContact } = useContacts()
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
+        const addContactErr = await createContact(idRef.current.value, nameRef.current.value)
 
-        createContact(idRef.current.value, nameRef.current.value)
-        closeModal()
+        if (!addContactErr) {
+            closeModal()
+            setAddFriendErr("")
+            return
+        }
+
+        setAddFriendErr(addContactErr)
     }
 
 
@@ -30,6 +36,7 @@ export default function NewContactModal({ closeModal }) {
                         <Form.Label>Name</Form.Label>
                         <Form.Control type="text" ref={nameRef} required />
                     </Form.Group>
+                    <p className="err-message">{addFriendErr}</p>
                     <Button type="submit">Create</Button>
                 </Form>
             </Modal.Body>

@@ -34,6 +34,10 @@ export default function FriendDetailModal({ friend, name, closeFriendModal }) {
         }
     }
 
+    async function deleteFriend() {
+        console.log("delete friend")
+    }
+
     function handleFriendName(e) {
         setFriendName(e.target.value)
     }
@@ -50,7 +54,8 @@ export default function FriendDetailModal({ friend, name, closeFriendModal }) {
     return (
         <>
             <Modal.Header closeButton>{name}</Modal.Header>
-            <Modal.Body>
+            <Modal.Body className="position-relative">
+                <Button type="button" variant="danger" className="position-absolute top-0 left-0" size="sm" onClick={() => { deleteFriend() }}>Delete</Button>
                 <div className="profile-pic-container">
                     {
                         friend.picture ?

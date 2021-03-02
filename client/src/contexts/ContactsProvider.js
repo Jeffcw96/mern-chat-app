@@ -29,21 +29,25 @@ export function ContactsProvider({ children }) {
 
 
     async function createContact(id, name) {
-        let contactJson = {};
-        contactJson.id = id;
-        contactJson.name = name;
+        try {
+            let contactJson = {};
+            contactJson.id = id;
+            contactJson.name = name;
 
-        const response = await axios.post("social/addContact", contactJson, {
-            headers: {
-                "Authorization": "Bearer " + getCookie("token")
+            const response = await axios.post("social/addContact", contactJson, {
+                headers: {
+                    "Authorization": "Bearer " + getCookie("token")
+                }
+            })
+
+            if (response.data.contactList) {
+                const contactList = response.data.contactList
+                setContacts(contactList)
             }
-        })
 
-        if (response.data.contactList) {
-            const contactList = response.data.contactList
-            setContacts(contactList)
+        } catch (error) {
+            return error.response.data.error
         }
-
     }
 
     return (

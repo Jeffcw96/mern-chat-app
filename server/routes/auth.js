@@ -251,7 +251,7 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
         const data = await sendPromise;
         console.log('data.MessageId', data.MessageId)
 
-        res.send("ok")
+        res.json({ desp: "Please check your email for password reset" })
 
     } catch (error) {
         console.error("forgot password error", error.message);

@@ -13,7 +13,7 @@ import { useProfile } from '../contexts/ProfileProvider'
 const CONVERSATION_KEY = "conversations"
 const CONTACTS_KEY = "contacts"
 
-export default function Sidebar({ id }) {
+export default function Sidebar({ setConversationActive }) {
     const [activeKey, setActiveKey] = useState(CONVERSATION_KEY)
     const [modalOpen, setModalOpen] = useState(false)
     const [profileModalOpen, setProfileModalOpen] = useState(false)
@@ -34,6 +34,10 @@ export default function Sidebar({ id }) {
 
     //return true if activeKey equal to conversation key
     const conversationOpen = activeKey === CONVERSATION_KEY
+
+    useEffect(() => {
+        setConversationActive(activeKey === CONVERSATION_KEY)
+    }, [activeKey])
 
     function closeModal() {
         setModalOpen(false)
@@ -63,7 +67,7 @@ export default function Sidebar({ id }) {
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
-                <Tab.Content className='border-right overflow-auto flex-grow-1'>
+                <Tab.Content className='border-right border-top overflow-auto flex-grow-1'>
                     <Tab.Pane eventKey={CONVERSATION_KEY}>
                         <Conversations />
                     </Tab.Pane>
@@ -71,9 +75,6 @@ export default function Sidebar({ id }) {
                         <Contacts />
                     </Tab.Pane>
                 </Tab.Content>
-                <div className="p-2 border-top border-right small">
-                    Your Id: <span className="text-muted">{id}</span>
-                </div>
                 <Button className="rounded-0" onClick={() => setModalOpen(true)}>
                     New {conversationOpen ? 'Chat' : 'Contact'}
                 </Button>

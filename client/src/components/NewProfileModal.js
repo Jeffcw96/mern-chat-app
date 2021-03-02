@@ -19,19 +19,24 @@ const authInit = {
 }
 
 export default function NewProfileModal({ closeProfileModal }) {
-    const [activeKey, setActiveKey] = useState(PROFILE_CONTENT)
     const { profile, setProfile } = useProfile()
+
+    const [activeKey, setActiveKey] = useState(PROFILE_CONTENT)
+    const [uploadProfileErr, setUploadProfileErr] = useState("")
     const [updatedProfile, setUpdatedProfile] = useState(profile)
     const [passwordErr, setPasswordErr] = useState("");
     const [profileErr, setProfileErr] = useState("")
     const [authInfo, setAuthInfo] = useState(authInit)
     const [isGoogleAcc, setIsGoogleAcc] = useState(false)
     const [isNotTempAcc, setIsNotTempAcc] = useState(true);
+
     const userEmailRef = useRef();
     const saveBtn = useRef();
     const updateBtn = useRef();
     const authIconTab = useRef();
     const profileIconTab = useRef();
+
+
 
 
     const [profilePic, setProfilePic] = useState(() => {
@@ -68,12 +73,14 @@ export default function NewProfileModal({ closeProfileModal }) {
                     "Authorization": "Bearer " + getCookie("token")
                 }
             })
+            setUploadProfileErr("")
             setProfilePic(response.data.location)
             setProfile((prevProf) => {
                 return { ...prevProf, picture: response.data.location }
             })
+
         } catch (error) {
-            console.error("error", error.message)
+            setUploadProfileErr(error.response.data.error)
         }
 
     }
@@ -232,6 +239,7 @@ export default function NewProfileModal({ closeProfileModal }) {
                                 </label>
                                 <input type="file" onChange={(e) => handleUploadProfile(e)} id="profilePic" style={{ display: 'none' }} />
                             </div>
+                            <p className="my-2 err-message text-center">{uploadProfileErr}</p>
                             <Form onSubmit={handleProfileSubmit}>
                                 <Form.Group className="d-flex justify-content-between align-items-center my-4 px-5">
                                     <Form.Label className="w-25">Id:</Form.Label>

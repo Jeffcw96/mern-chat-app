@@ -29,7 +29,17 @@ const storage = multer.diskStorage({
     }
 })
 
-const upload = multer({ storage: storage }).single('file')
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
+            cb(null, true);
+        } else {
+            cb(null, false);
+            return cb(new Error('Only .png, .jpg and .jpeg format are allowed!'));
+        }
+    }
+}).single('file')
 
 router.get('/get', auth, async (req, res) => {
     try {
@@ -47,8 +57,9 @@ router.post('/uploadProfile', auth, async (req, res) => {
     try {
         upload(req, res, (err) => {
             if (err) {
-                console.log("err", err)
-                res.sendStatus(500);
+                console.log("err", err.message)
+                res.status(500).json({ error: err.message });
+                return
             }
             const fileName = req.file.filename.slice(0, req.file.filename.lastIndexOf("."))
             const filePath = path.join(__dirname, '../' + STATICFOLDER + '/');

@@ -9,12 +9,20 @@ router.post('/addContact', auth, async (req, res) => {
         const userId = req.user.id
         console.log('userId', userId)
 
+        const isIdExist = await User.findOne({ _id: req.body.id })
+        console.log("isIdExist", isIdExist)
+        if (!isIdExist) {
+            res.status(400).json({ error: 'Id not found' })
+            return
+        }
+
         //$elemMatch used to find if the object key is matched inside the array
         const allFriends = await User.findById({ _id: userId }, { friends: { $elemMatch: { id: req.body.id } } })
         if (allFriends.friends.length !== 0) {
-            res.json({ error: 'duplicated Id' })
+            res.status(400).json({ error: 'duplicated Id' })
             return
         }
+
 
         //setting {new: true} will get the latest docs after update the document
         const response = await User.findByIdAndUpdate({ _id: userId }, { $addToSet: { friends: req.body } }, { new: true })
@@ -22,7 +30,7 @@ router.post('/addContact', auth, async (req, res) => {
 
     } catch (error) {
         console.error(error.message)
-        res.status(500).json({ error: "Server error" })
+        res.status(400).json({ error: "Id not found" })
     }
 })
 

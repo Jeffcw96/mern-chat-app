@@ -106,6 +106,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
             const response = await axios.post("auth/login", user);
             console.log("response", response)
             const { token, id } = response.data;
+            setCookie("userRole", "normalUser", 0.8);
             setCookie("token", token, 0.8);
             onIdSubmit(id)
             setTokenValid(true)
@@ -194,7 +195,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                         </Nav.Item>
                     </Nav>
                     <Tab.Content>
-                        <Tab.Pane eventKey={LOGIN_KEY}>
+                        <Tab.Pane eventKey={LOGIN_KEY} className="mt-3">
                             <Form.Group>
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control type="email" value={loginState.email} required placeholder="Enter your email address" onChange={(e) => enterLoginInfo(e, 'email')} />
@@ -206,7 +207,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                                 <p className="err-message">{state.password}</p>
                             </Form.Group>
                         </Tab.Pane>
-                        <Tab.Pane eventKey={REGISTER_KEY}>
+                        <Tab.Pane eventKey={REGISTER_KEY} className="mt-3">
                             <Form.Group>
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control type="email" ref={emailRef} required placeholder="Enter your email address" />
@@ -224,7 +225,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                             </Form.Group>
                             <p className="success-message">{successMsg}</p>
                         </Tab.Pane>
-                        <Tab.Pane eventKey={RESET_KEY}>
+                        <Tab.Pane eventKey={RESET_KEY} className="mt-3">
                             <Form.Group>
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control type="email" value={forgotEmail} required placeholder="Enter your email address" onChange={(e) => setForgotEmail(e.target.value)} />
@@ -247,8 +248,6 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                         </Tab.Pane>
                     </Tab.Content>
                 </Tab.Container>
-
-
             </Form>
         </Container>
     )

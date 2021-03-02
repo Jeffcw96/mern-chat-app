@@ -21,3 +21,5 @@ forgot password email template
 
 reset password front end will be located inside the login component, useeffect to check whether it's for reset password. 
 render one more event key for password reset. it's actived by default
+
+-delete friend api

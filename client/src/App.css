@@ -119,3 +119,21 @@
   top: -5px;
   cursor: pointer;
 }
+
+.hints-box{
+  bottom: 70px;
+  left: -168px;
+  background: #b6daff;
+  font-weight: bold;
+  border-radius: 5px
+}
+
+.hints-box-arrow{
+  position: absolute;
+  right: 15px;
+  width: 0;
+height: 0;
+border-style: solid;
+border-width: 15px 7.5px 0 7.5px;
+border-color: #b6daff transparent transparent transparent;
+}

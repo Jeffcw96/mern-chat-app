@@ -4,6 +4,7 @@ import { useConversations } from '../contexts/ConversationsProvider'
 import useEventListener from '../hooks/useEventListener'
 
 export default function OpenConversation() {
+    const [isTyping, setIsTyping] = useState(false)
     const [text, setText] = useState('')
     const { sendMessage, selectedConversation } = useConversations()
     const setRef = useCallback(node => {
@@ -21,7 +22,7 @@ export default function OpenConversation() {
     }
 
     useEventListener('keypress', (e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && isTyping && text.trim().length !== 0) {
             sendMessage(selectedConversation.recipients.map(r => r.id), text)
             setText('')
         }
@@ -60,6 +61,8 @@ export default function OpenConversation() {
                             required
                             value={text}
                             onChange={e => setText(e.target.value)}
+                            onFocus={() => setIsTyping(true)}
+                            onBlur={() => setIsTyping(false)}
                             style={{ height: '75px', resize: 'none' }} />
                         <InputGroup.Append>
                             <Button type="submit">Send</Button>
