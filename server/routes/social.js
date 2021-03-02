@@ -64,4 +64,15 @@ router.post('/updateName', auth, async (req, res) => {
     }
 })
 
+router.post('/deleteContact', auth, async (req, res) => {
+    try {
+        const response = await User.findByIdAndUpdate({ _id: req.user.id }, { $pull: { friends: req.body } }, { new: true })
+        res.json({ friends: response.friends })
+
+    } catch (error) {
+        console.error(error.message)
+        res.status(500).json({ error: "Server error" })
+    }
+})
+
 module.exports = router;

@@ -2,10 +2,11 @@ import React, { useRef, useState, useEffect, useReducer } from 'react';
 import { Button, Container, Form, Tab, Nav } from 'react-bootstrap'
 import Google from './Google'
 import axios from 'axios'
-import { setCookie } from './Cookie'
+import { setCookie, deleteCookie } from './Cookie'
 
 const REGISTER_KEY = "register"
 const LOGIN_KEY = "login"
+const FORGOT_KEY = "forgot"
 const RESET_KEY = "reset"
 const ERR = {
     REGISTER: 'cPassword',
@@ -18,7 +19,7 @@ const InitialState = {
     password: "",
     cPassword: ""
 }
-export default function Login({ onIdSubmit, setTokenValid }) {
+export default function Login({ onIdSubmit, setTokenValid, setHideReset }) {
     const emailRef = useRef();
     const passwordRef = useRef();
     const cPasswordRef = useRef();
@@ -29,6 +30,10 @@ export default function Login({ onIdSubmit, setTokenValid }) {
     const [activeKey, setActiveKey] = useState(LOGIN_KEY)
     const [state, dispatch] = useReducer(reducer, InitialState);
     const [forgotEmail, setForgotEmail] = useState("");
+    const [resetToken, setResetToken] = useState("");
+    const [isReset, setIsReset] = useState(false)
+    const [resetState, setResetState] = useState({ password: "", cPassword: "" });
+    const [resetResp, setResetResp] = useState({ error: "", success: "" });
 
 
 
@@ -59,6 +64,17 @@ export default function Login({ onIdSubmit, setTokenValid }) {
         })
     }
 
+    function setResetPassword(e, type) {
+        setResetState(prevResetState => {
+            if (type === "password") {
+                return { ...prevResetState, password: e.target.value }
+
+            } else if (type === "cPassword") {
+                return { ...prevResetState, cPassword: e.target.value }
+            }
+        })
+    }
+
     function ResetInputAndMsg() {
         emailRef.current.value = ""
         passwordRef.current.value = ""
@@ -66,10 +82,33 @@ export default function Login({ onIdSubmit, setTokenValid }) {
         setSuccessMsg("")
     }
 
+    function ResetLoginState() {
+        deleteCookie("RefreshToken");
+        deleteCookie("token");
+        deleteCookie("userRole");
+        setTokenValid(false)
+    }
+
+
     useEffect(() => {
         ResetInputAndMsg()
         dispatch({ type: 'RESET' })
     }, [activeKey])
+
+    useEffect(() => {
+        const query = (new URL(document.location)).searchParams;
+        if (query.get('token')) {
+            setResetToken(query.get('token'))
+            setActiveKey(RESET_KEY)
+            ResetLoginState()
+        }
+
+        if (query.get('action') === 'reset') {
+            setIsReset(true)
+            ResetLoginState()
+        }
+
+    }, [])
 
 
     function reducer(state, action) {
@@ -111,7 +150,9 @@ export default function Login({ onIdSubmit, setTokenValid }) {
             onIdSubmit(id)
             setTokenValid(true)
 
+
         } catch (error) {
+            console.error("error", error)
             console.log(error.response);
             const errorResult = error.response.data
             passwordRef.current.classList.add('err');
@@ -160,7 +201,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
 
     }
 
-    async function Reset() {
+    async function ForgotPassword() {
         try {
             let user = {}
             user.email = forgotEmail
@@ -178,6 +219,44 @@ export default function Login({ onIdSubmit, setTokenValid }) {
         }
     }
 
+    async function ResetPassword() {
+        console.log("reset password")
+        try {
+            if (resetState.password.trim() !== resetState.cPassword.trim()) {
+                setResetResp(prevResetResp => {
+                    return { ...prevResetResp, error: "Please ensure the password is matched" }
+                })
+                return
+            }
+
+            if (resetState.password.trim().length == 0 || resetState.cPassword.trim().length == 0) {
+                setResetResp(prevResetResp => {
+                    return { ...prevResetResp, error: "Please ensure password is not blank" }
+                })
+                return
+            }
+
+            let jsonBody = {}
+            jsonBody.password = resetState.cPassword;
+
+            const response = await axios.post("auth/resetPassword", jsonBody, {
+                headers: {
+                    "Authorization": "Bearer " + resetToken
+                }
+            })
+
+            if (response.status === 200) {
+                setResetResp({ success: "Reset Password Successful !", error: "" })
+                return
+            }
+
+        } catch (error) {
+            setResetResp(prevResetResp => {
+                return { ...prevResetResp, error: error.response.data.error }
+            })
+        }
+    }
+
     return (
         <Container className="align-items-center d-flex" style={{ height: '100vh' }}>
             {/* onSubmit={handleSubmit} */}
@@ -191,8 +270,15 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                             <Nav.Link eventKey={REGISTER_KEY}>Register</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link eventKey={RESET_KEY}>Forgot Password</Nav.Link>
+                            <Nav.Link eventKey={FORGOT_KEY}>Forgot Password</Nav.Link>
                         </Nav.Item>
+                        {
+                            isReset && resetToken ?
+                                <Nav.Item>
+                                    <Nav.Link eventKey={RESET_KEY}>Reset Password</Nav.Link>
+                                </Nav.Item>
+                                : null
+                        }
                     </Nav>
                     <Tab.Content>
                         <Tab.Pane eventKey={LOGIN_KEY} className="mt-3">
@@ -207,6 +293,7 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                                 <p className="err-message">{state.password}</p>
                             </Form.Group>
                         </Tab.Pane>
+
                         <Tab.Pane eventKey={REGISTER_KEY} className="mt-3">
                             <Form.Group>
                                 <Form.Label>Email</Form.Label>
@@ -225,12 +312,26 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                             </Form.Group>
                             <p className="success-message">{successMsg}</p>
                         </Tab.Pane>
-                        <Tab.Pane eventKey={RESET_KEY} className="mt-3">
+
+                        <Tab.Pane eventKey={FORGOT_KEY} className="mt-3">
                             <Form.Group>
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control type="email" value={forgotEmail} required placeholder="Enter your email address" onChange={(e) => setForgotEmail(e.target.value)} />
                             </Form.Group>
                             <p className="success-message" ref={resetPasswordMsg}></p>
+                        </Tab.Pane>
+
+                        <Tab.Pane eventKey={RESET_KEY} className="mt-3">
+                            <Form.Group>
+                                <Form.Label>New Password</Form.Label>
+                                <Form.Control type="password" value={resetState.password} required placeholder="Enter your new password" onChange={(e) => setResetPassword(e, 'password')} />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Comfirm Password</Form.Label>
+                                <Form.Control type="password" value={resetState.cPassword} required placeholder="Enter your confirm password" onChange={(e) => setResetPassword(e, 'cPassword')} />
+                                <p className="err-message">{resetResp.error}</p>
+                            </Form.Group>
+                            <p className="success-message">{resetResp.success}</p>
                         </Tab.Pane>
                     </Tab.Content>
                     <Tab.Content>
@@ -243,8 +344,11 @@ export default function Login({ onIdSubmit, setTokenValid }) {
                             <Button type="button" className="mr-2" onClick={() => { Register() }}>Register</Button>
                             <Google label={"Sign Up with Google"} onSubmit={onIdSubmit} setTokenValid={setTokenValid} />
                         </Tab.Pane>
+                        <Tab.Pane eventKey={FORGOT_KEY}>
+                            <Button type="button" className="mr-2" onClick={() => { ForgotPassword() }}>Submit</Button>
+                        </Tab.Pane>
                         <Tab.Pane eventKey={RESET_KEY}>
-                            <Button type="button" className="mr-2" onClick={() => { Reset() }}>Submit</Button>
+                            <Button type="button" className="mr-2" onClick={() => { ResetPassword() }}>Submit</Button>
                         </Tab.Pane>
                     </Tab.Content>
                 </Tab.Container>

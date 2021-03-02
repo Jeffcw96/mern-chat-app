@@ -2,8 +2,10 @@ import React, { useState, useCallback } from 'react'
 import { Form, InputGroup, Button } from 'react-bootstrap'
 import { useConversations } from '../contexts/ConversationsProvider'
 import useEventListener from '../hooks/useEventListener'
+import sendIcon from '../static/send.svg'
 
 export default function OpenConversation() {
+    const [isHoldingShift, setIsHoldingShift] = useState(false)
     const [isTyping, setIsTyping] = useState(false)
     const [text, setText] = useState('')
     const { sendMessage, selectedConversation } = useConversations()
@@ -11,22 +13,27 @@ export default function OpenConversation() {
         if (node) {
             node.scrollIntoView({ smooth: true })
         }
-
     }, [])
 
     function handleSubmit(e) {
         e.preventDefault()
-
         sendMessage(selectedConversation.recipients.map(r => r.id), text)
         setText('')
     }
 
     useEventListener('keypress', (e) => {
-        if (e.key === "Enter" && isTyping && text.trim().length !== 0) {
-            sendMessage(selectedConversation.recipients.map(r => r.id), text)
-            setText('')
+        if (!e.shiftKey) {
+            if (e.key === "Enter" && isTyping && text.trim().length !== 0) {
+                e.preventDefault()
+                sendMessage(selectedConversation.recipients.map(r => r.id), text)
+                setText('')
+            }
         }
     })
+
+
+
+
 
 
     return (
@@ -63,9 +70,9 @@ export default function OpenConversation() {
                             onChange={e => setText(e.target.value)}
                             onFocus={() => setIsTyping(true)}
                             onBlur={() => setIsTyping(false)}
-                            style={{ height: '75px', resize: 'none' }} />
+                            style={{ height: '50px', resize: 'none' }} />
                         <InputGroup.Append>
-                            <Button type="submit">Send</Button>
+                            <Button type="submit" variant="secondary" style={{ padding: '0px 15px' }}><img src={sendIcon} style={{ width: '20px' }} /></Button>
                         </InputGroup.Append>
                     </InputGroup>
                 </Form.Group>

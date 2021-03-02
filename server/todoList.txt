@@ -17,9 +17,15 @@ api for reset password (done)
 23/2/2021
 understand usecallback 
 show more info in friend list (name, bio) (done)
-forgot password email template 
+forgot password email template (done)
 
-reset password front end will be located inside the login component, useeffect to check whether it's for reset password. 
-render one more event key for password reset. it's actived by default
+reset password front end will be located inside the login component, useeffect to check whether it's for reset password. (done)
+render one more event key for password reset. it's actived by default (done)
 
--delete friend api
+-delete friend api (done)
+
+02/03/2021
+- rearrange code such as web socket into one file,
+- aws API into another file
+- follow code pattern (Reach hooks API initialization > API function > normal function)
+- remove console log

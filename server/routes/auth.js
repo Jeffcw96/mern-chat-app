@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const path = require('path');
-const axios = require('axios')
+const auth = require("../middleware/auth")
 const fs = require('fs');
 const { check, validationResult } = require('express-validator');
 const { OAuth2Client } = require('google-auth-library');
@@ -258,6 +257,26 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
         res.status(500).json({ error: error.message })
     }
 })
+
+router.post("/resetPassword", [[check("password", "Please enter at least 6 characters").isLength({ min: 6 })], auth], async (req, res) => {
+    try {
+        const error = await validationResult(req)
+        if (!error.isEmpty()) {
+            return res.status(400).json({ error: 'Please enter at least 6 characters' })
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const password = await bcrypt.hash(req.body.password, salt);
+        await User.findOneAndUpdate({ email: req.user.email }, { password: password })
+
+        res.send("ok")
+
+    } catch (error) {
+        console.error(error.message)
+        res.status(500).json({ error: "Server error !" })
+    }
+})
+
 
 function deleteEmailTemplate(name) {
     var params = {

@@ -35,7 +35,24 @@ export default function FriendDetailModal({ friend, name, closeFriendModal }) {
     }
 
     async function deleteFriend() {
-        console.log("delete friend")
+        try {
+            let jsonBody = {}
+            jsonBody.id = friend._id;
+            jsonBody.name = friendName;
+
+            const response = await axios.post("social/deleteContact", jsonBody, {
+                headers: {
+                    "Authorization": "Bearer " + getCookie('token')
+                }
+            })
+
+            if (response.status === 200) {
+                setContacts(response.data.friends);
+                closeFriendModal()
+            }
+        } catch (error) {
+            console.error(error.response.data.error);
+        }
     }
 
     function handleFriendName(e) {
