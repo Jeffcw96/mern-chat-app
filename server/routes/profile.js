@@ -6,19 +6,12 @@ const multer = require('multer');
 const STATICFOLDER = 'public';
 const fs = require('fs');
 const path = require('path');
-const AWS = require('aws-sdk');
 const sharp = require('sharp');
 const bcrypt = require('bcrypt');
+const aws = require("../api/aws")
 const { check, validationResult } = require('express-validator');
+
 require('dotenv').config()
-
-
-const s3 = new AWS.S3({
-    accessKeyId: process.env.S3ACCESSKEY,
-    secretAccessKey: process.env.S3SECRET
-});
-
-const S3ProfileDir = 'user/'
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -67,32 +60,22 @@ router.post('/uploadProfile', auth, async (req, res) => {
             const processedFileDestination = filePath + fileName + '.webp'
 
             console.log('req.file', req.file)
-            sharp(originalFileDestination).resize(500).toFile(filePath + fileName + '.webp')
+            sharp(originalFileDestination).resize(500).rotate().withMetadata().toFile(filePath + fileName + '.webp')
                 .then(data => {
-                    console.log("webp data", data)
                     const fileContent = fs.readFileSync(processedFileDestination);
-                    const params = {
-                        Bucket: 'connectmeandyou',
-                        Key: S3ProfileDir + fileName + '.webp', // File name you want to save as in S3
-                        Body: fileContent,
-                        ContentType: 'image/jpeg',
-                        ACL: 'public-read'
-                    };
 
-                    // Uploading files to the bucket
-                    s3.upload(params, function (err, data) {
-                        if (err) {
-                            console.log('s3 upload err', err);
-                        }
-                        console.log(`File uploaded successfully. ${data.Location}`);
-                        userProfileImg = data.Location
-                        User.findByIdAndUpdate(userId, { picture: userProfileImg })
-                            .then(response => { console.log("done") })
-                        res.json({ location: userProfileImg });
-                    });
+                    aws.uploadImageToS3('connectmeandyou', fileName + '.webp', fileContent)
+                        .then((data) => {
+                            const fileDir = data.Location;
+                            console.log(`File uploaded successfully. ${fileDir}`);
+                            userProfileImg = fileDir
+                            User.findByIdAndUpdate(userId, { picture: userProfileImg })
+                                .then(response => { console.log("done") })
+                            res.json({ location: userProfileImg });
 
-                    fs.unlinkSync(originalFileDestination)
-                    fs.unlinkSync(processedFileDestination)
+                            fs.unlinkSync(originalFileDestination)
+                            fs.unlinkSync(processedFileDestination)
+                        })
                 })
                 .catch(err => { console.log("webp err", err) })
         });

@@ -133,7 +133,8 @@ export default function NewProfileModal({ closeProfileModal }) {
             if (response.status === 200) {
                 setPasswordErr("");
                 closeProfileModal();
-                if (getCookie("userRole") === "tempUser") {
+                console.log("updatedProfile.email", updatedProfile.email);
+                if ((getCookie("userRole") === "tempUser") && (updatedProfile.email !== "") && (updatedProfile.email !== undefined)) {
                     deleteCookie("userRole")
                 }
             }

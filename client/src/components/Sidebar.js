@@ -61,10 +61,8 @@ export default function Sidebar({ setConversationActive }) {
                             <Image src={contactImg} width="25" />
                         </Nav.Link>
                     </Nav.Item>
-                    <Nav.Item className="d-flex align-items-center ml-4">
-                        <Nav.Link onClick={() => setProfileModalOpen(true)}>
-                            <Image src={profilePic} width="25" />
-                        </Nav.Link>
+                    <Nav.Item className="d-flex align-items-center ml-4 mb-1" onClick={() => setProfileModalOpen(true)}>
+                        <Image src={profilePic} className="profile-sidebar-icon" />
                     </Nav.Item>
                 </Nav>
                 <Tab.Content className='border-right border-top overflow-auto flex-grow-1'>

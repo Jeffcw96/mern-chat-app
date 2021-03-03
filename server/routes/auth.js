@@ -3,17 +3,11 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const auth = require("../middleware/auth")
-const fs = require('fs');
 const { check, validationResult } = require('express-validator');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
-var AWS = require('aws-sdk');
-AWS.config.update({ region: 'ap-southeast-1' });
+const aws = require("../api/aws")
 require('dotenv').config()
-const ses = new AWS.SES({
-    accessKeyId: process.env.S3ACCESSKEY,
-    secretAccessKey: process.env.S3SECRET
-});
 
 router.post('/register', [check('email', 'Please enter a valid email').isEmail(),
 check('password', 'Please enter at least 6 characters').isLength({ min: 6 })],
@@ -230,26 +224,8 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
             process.env.TOKEN,
             { expiresIn: '1800s' });
 
-        var params = {
-            Destination: { /* required */
-                CcAddresses: [],
-                ToAddresses: [
-                    email,
-                    /* more To email addresses */
-                ]
-            },
-            Source: process.env.SESSENDER, /* required */
-            Template: 'forgotPassword',
-            TemplateData: `{\"reset\":{\"token\":\"${token}\"}}`,
-            ReplyToAddresses: [],
-        };
-
-
-        // Create the promise and SES service object
-        var sendPromise = ses.sendTemplatedEmail(params).promise();
-        const data = await sendPromise;
-        console.log('data.MessageId', data.MessageId)
-
+        const result = await aws.sendForgotPasswordTemplateEmail(email, process.env.SESSENDER, token)
+        console.log("result", result)
         res.json({ desp: "Please check your email for password reset" })
 
     } catch (error) {
@@ -277,38 +253,5 @@ router.post("/resetPassword", [[check("password", "Please enter at least 6 chara
     }
 })
 
-
-function deleteEmailTemplate(name) {
-    var params = {
-        TemplateName: name /* required */
-    };
-    ses.deleteTemplate(params, function (err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-        else console.log(data);           // successful response
-    });
-}
-
-function createEmailTemplate(templateName, htmlBody, subject, text = "Please contact us") {
-    var params = {
-        Template: { /* required */
-            TemplateName: templateName, /* required */
-            HtmlPart: htmlBody,
-            SubjectPart: subject,
-            TextPart: text
-        }
-    };
-
-    ses.createTemplate(params, function (err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-        else console.log(data);           // successful response
-    });
-}
-
-function readHTMLFileAndCreateEmailTemplate(path, templateName, subject, text = "Please contact us") {
-    //Path example: __dirname + '../../email_template/resetPassword.html'
-    fs.readFile(__dirname + path, 'utf8', function (err, html) {
-        createEmailTemplate(templateName, html, subject, text);
-    })
-}
 
 module.exports = router;

@@ -74,8 +74,6 @@ io.on('connection', socket => {
             }
 
             await User.findOneAndUpdate({ $and: [{ _id: recipient }, { "conversation.recipients": newRecipients }] }, { $push: { "conversation.$.messages": messageJson } })
-
-            // await User.findOneAndUpdate({ $and: [{ _id: recipient }, { "conversation.recipients": newRecipients }] }, { $push: { "conversation.$.messages": messageJson } }, { new: true })
             console.log("id", id, "newRecipients", newRecipients, "text", text, "recipient", recipient)
 
             // const response = await User.findByIdAndUpdate({ _id: userId }, { $addToSet: { conversation: req.body } }, { new: true })
