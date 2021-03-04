@@ -16,7 +16,7 @@ export default function Conversations() {
                     active={conversation.selected}
                 >
                     <div>{conversation.recipients.map(r => r.name).join(', ')}</div>
-                    <div>{conversation.lastSent.fromMe ? "You :" : conversation.lastSent.senderName + " :"} <span>{conversation.lastSent.text}</span></div>
+                    <small>{conversation.lastSent.fromMe ? "You :" : conversation.lastSent.senderName + " :"} <span>{conversation.lastSent.text}</span></small>
                 </ListGroup.Item>
             ))}
         </ListGroup>
