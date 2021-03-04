@@ -5,7 +5,6 @@ import useEventListener from '../hooks/useEventListener'
 import sendIcon from '../static/send.svg'
 
 export default function OpenConversation() {
-    const [isHoldingShift, setIsHoldingShift] = useState(false)
     const [isTyping, setIsTyping] = useState(false)
     const [text, setText] = useState('')
     const { sendMessage, selectedConversation } = useConversations()

@@ -48,7 +48,7 @@ export default function Sidebar({ setConversationActive }) {
     }
 
     return (
-        <div style={{ width: '250px' }} className="d-flex flex-column">
+        <div style={{ width: '300px' }} className="d-flex flex-column">
             <Tab.Container activeKey={activeKey} onSelect={setActiveKey}>
                 <Nav className="justify-content-left">
                     <Nav.Item>

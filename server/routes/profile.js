@@ -48,6 +48,10 @@ router.post('/uploadProfile', auth, async (req, res) => {
     const userId = req.user.id
     let userProfileImg = ""
     try {
+        //create folder if it's not exist
+        if (!fs.existsSync('./' + STATICFOLDER)) {
+            fs.mkdirSync('./' + STATICFOLDER);
+        }
         upload(req, res, (err) => {
             if (err) {
                 console.log("err", err.message)
@@ -56,6 +60,8 @@ router.post('/uploadProfile', auth, async (req, res) => {
             }
             const fileName = req.file.filename.slice(0, req.file.filename.lastIndexOf("."))
             const filePath = path.join(__dirname, '../' + STATICFOLDER + '/');
+
+
             const originalFileDestination = filePath + req.file.filename;
             const processedFileDestination = filePath + fileName + '.webp'
 

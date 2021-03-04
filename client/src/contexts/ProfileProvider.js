@@ -23,7 +23,6 @@ export function ProfileProvider({ children }) {
             }
         })
         const userProfile = response.data.profile;
-        console.log("userProfile", userProfile)
         setProfile(userProfile)
     }
 

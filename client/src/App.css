@@ -145,3 +145,20 @@
   border-radius: 50%;
   cursor: pointer;
 }
+
+.notification-alert{
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #007BFF;
+  border-radius: 50%;
+  color: #007BFF;
+  text-align: center;
+  display: none;
+}
+
+.notification-alert.active{
+  display: block;
+}

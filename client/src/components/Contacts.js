@@ -55,7 +55,6 @@ export default function Contacts() {
         async () => {
             const response = await getFriendsProfilePic()
             if (response) {
-                console.log("responseeee", response)
                 setLatestContact(response)
             }
         },

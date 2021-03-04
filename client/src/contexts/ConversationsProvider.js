@@ -60,7 +60,8 @@ export function ConversationsProvider({ id, children }) {
                     existingConversation = true
                     return {
                         ...conversation,
-                        messages: [...conversation.messages, newMessage]
+                        messages: [...conversation.messages, newMessage],
+                        seen: false
                     }
                 }
 
@@ -111,7 +112,10 @@ export function ConversationsProvider({ id, children }) {
         })
 
         const selected = index === selectedConversationIndex
-        return { ...conversation, messages, recipients, selected }
+
+
+        const lastSent = messages[messages.length - 1]
+        return { ...conversation, messages, recipients, selected, lastSent, seen: true }
     })
 
     const value = {
