@@ -18,12 +18,22 @@ app.use("/chat", require('./routes/chat'));
 app.use("/profile", require('./routes/profile'))
 
 const server = http.createServer(app);
-const io = socketio(server, {
+let io = socketio(server, {
     cors: {
         origin: "http://localhost:3000",
         methods: ["GET", "POST"]
     }
 });
+
+if (process.env.NODE_ENV === "production") {
+    io = socketio(server, {
+        cors: {
+            origin: "http://18.140.68.176:3000",
+            methods: ["GET", "POST"]
+        }
+    });
+}
+
 
 function arrayEquality(a, b) {
     if (a.length !== b.length) return false
@@ -97,4 +107,4 @@ if (process.env.NODE_ENV === "production") {
     });
 }
 
-server.listen(process.env.PORT || 5000, () => console.log(`Server has started. at PORT 5000`));
+server.listen(process.env.PORT || 5000, () => console.log(`Server has started. at PORT 5000 or`, process.env.PORT));
