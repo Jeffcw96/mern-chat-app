@@ -7,6 +7,7 @@ import { ConversationsProvider } from '../contexts/ConversationsProvider'
 import { SocketProvider } from '../contexts/SocketProvider'
 import { ProfileProvider } from '../contexts/ProfileProvider'
 import { setCookie, getCookie, deleteCookie } from './Cookie'
+import sorry from '../static/sorry.svg'
 import axios from 'axios'
 import '../App.css'
 
@@ -14,6 +15,7 @@ import '../App.css'
 function App() {
   const [id, setId] = useLocalStorage("id")
   const [tokenValid, setTokenValid] = useState(false)
+  const [allowScreenWidth, setAllowScreenWidth] = useState(false)
 
   async function verifyUser() {
     try {
@@ -49,6 +51,10 @@ function App() {
 
   useEffect(() => {
     verifyUser()
+    if (window.innerWidth >= 850) {
+      setAllowScreenWidth(true)
+    }
+
   }, [])
 
 
@@ -64,8 +70,21 @@ function App() {
     </SocketProvider>
   )
 
+  const notAllowScreenRender = (
+    <div style={{ minHeight: '100vh', position: 'relative' }}>
+      <div className="sorry-img-container">
+        <img src={sorry} alt="sorry" style={{ width: '100%' }} />
+      </div>
+      <div className="window-size-not-allowed-msg">I'm apologized that currently the project is not supporting mobile view. <br />
+            Stay tuned for coming mobile application
+      </div>
+    </div>
+  )
+
   return (
-    id && tokenValid ? dashboard : <Login onIdSubmit={setId} setTokenValid={setTokenValid} />
+    allowScreenWidth ?
+      id && tokenValid ? dashboard : <Login onIdSubmit={setId} setTokenValid={setTokenValid} />
+      : notAllowScreenRender
   );
 }
 

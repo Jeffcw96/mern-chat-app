@@ -162,3 +162,18 @@
 .notification-alert.active{
   display: block;
 }
+
+.window-size-not-allowed-msg{
+  position: absolute;
+    top: 50%;
+    font-size: 1.5rem;
+    padding: 0 15px;
+}
+
+.sorry-img-container{
+  max-width: 200px;
+  position: absolute;
+  top: 30%;
+  transform: translate(-50%, -30%);
+  left: 50%;
+}

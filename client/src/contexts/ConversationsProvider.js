@@ -114,7 +114,7 @@ export function ConversationsProvider({ id, children }) {
         const selected = index === selectedConversationIndex
 
 
-        const lastSent = messages[messages.length - 1]
+        const lastSent = messages[messages.length - 1] !== undefined ? messages[messages.length - 1] : null
         return { ...conversation, messages, recipients, selected, lastSent, seen: true }
     })
 
