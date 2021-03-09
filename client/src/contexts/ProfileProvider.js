@@ -3,7 +3,7 @@ import { getCookie } from '../components/Cookie'
 import axios from 'axios'
 
 const ProfileContext = React.createContext()
-const URL = "http://localhost:5000/"
+
 export function useProfile() {
     return useContext(ProfileContext)
 }

@@ -12,10 +12,15 @@ export function SocketProvider({ id, children }) {
     const [socket, setSocket] = useState()
 
     useEffect(() => {
-        const newSocket = io(
+        let newSocket = io(
             'http://localhost:5000',
             { query: { id } }
         )
+        if (process.env.NODE_ENV === 'production') {
+            newSocket = io(
+                { query: { id } }
+            )
+        }
 
         setSocket(newSocket)
         return () => newSocket.close()

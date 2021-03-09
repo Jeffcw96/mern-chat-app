@@ -6,7 +6,6 @@ import axios from 'axios'
 export default function Google({ label, onSubmit, setTokenValid }) {
     async function googleSuccess(response) {
         try {
-            console.log("success response", response);
             const { id_token } = response.tokenObj;
             const googleAcc = { id_token };
 

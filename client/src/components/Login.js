@@ -126,7 +126,7 @@ export default function Login({ onIdSubmit, setTokenValid, setHideReset }) {
         }
     }
     async function UserLogin() {
-        console.log("login")
+
         try {
             if (loginState.password === "") {
                 dispatch({ type: ERR.PASSWORD, payload: 'Please Fill in your Password' });
@@ -143,7 +143,7 @@ export default function Login({ onIdSubmit, setTokenValid, setHideReset }) {
             user.password = loginState.password
 
             const response = await axios.post("auth/login", user);
-            console.log("response", response)
+
             const { token, id } = response.data;
             setCookie("userRole", "normalUser", 0.8);
             setCookie("token", token, 0.8);
@@ -153,7 +153,6 @@ export default function Login({ onIdSubmit, setTokenValid, setHideReset }) {
 
         } catch (error) {
             console.error("error", error)
-            console.log(error.response);
             const errorResult = error.response.data
             passwordRef.current.classList.add('err');
             errorResult.error.forEach(result => {
@@ -191,7 +190,6 @@ export default function Login({ onIdSubmit, setTokenValid, setHideReset }) {
             }
 
         } catch (error) {
-            console.log(error.response);
             const errorResult = error.response.data
             cPasswordRef.current.classList.add('err');
             errorResult.error.forEach(result => {
@@ -220,7 +218,6 @@ export default function Login({ onIdSubmit, setTokenValid, setHideReset }) {
     }
 
     async function ResetPassword() {
-        console.log("reset password")
         try {
             if (resetState.password.trim() !== resetState.cPassword.trim()) {
                 setResetResp(prevResetResp => {
@@ -229,7 +226,7 @@ export default function Login({ onIdSubmit, setTokenValid, setHideReset }) {
                 return
             }
 
-            if (resetState.password.trim().length == 0 || resetState.cPassword.trim().length == 0) {
+            if (resetState.password.trim().length === 0 || resetState.cPassword.trim().length === 0) {
                 setResetResp(prevResetResp => {
                     return { ...prevResetResp, error: "Please ensure password is not blank" }
                 })

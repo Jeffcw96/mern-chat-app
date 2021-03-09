@@ -133,7 +133,6 @@ export default function NewProfileModal({ closeProfileModal }) {
             if (response.status === 200) {
                 setPasswordErr("");
                 closeProfileModal();
-                console.log("updatedProfile.email", updatedProfile.email);
                 if ((getCookie("userRole") === "tempUser") && (updatedProfile.email !== "") && (updatedProfile.email !== undefined)) {
                     deleteCookie("userRole")
                 }
@@ -178,7 +177,6 @@ export default function NewProfileModal({ closeProfileModal }) {
     useEffect(() => {
 
         if (ObjectEqual(updatedProfile, profile)) {
-            console.log('no change')
             saveBtn.current.classList.remove("d-block");
         }
 

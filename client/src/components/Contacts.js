@@ -7,7 +7,7 @@ import userImg from '../static/user.svg'
 import FriendDetailModal from './FriendDetailModal'
 
 export default function Contacts() {
-    const { contacts, setContacts } = useContacts()
+    const { contacts } = useContacts()
     const [latestContacts, setLatestContact] = useState(null)
     const [friendModalOpen, setFriendModalOpen] = useState(false)
     const [friendDetails, setFriendDetails] = useState(null)
@@ -77,8 +77,8 @@ export default function Contacts() {
                                     <div className="avatar-container">
                                         {
                                             contact.avatar ?
-                                                <img src={contact.avatar} className="avatar" /> :
-                                                <img src={userImg} className="avatar" />
+                                                <img src={contact.avatar} className="avatar" alt="" /> :
+                                                <img src={userImg} className="avatar" alt="" />
                                         }
                                     </div>
                                     <div className="friend-info">

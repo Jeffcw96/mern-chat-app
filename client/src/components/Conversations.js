@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useConversations } from '../contexts/ConversationsProvider'
 import { ListGroup } from "react-bootstrap"
 
 export default function Conversations() {
     const { conversations, selectConversationIndex } = useConversations()
-    console.log('conversations', conversations)
+
     return (
         <ListGroup variant="flush">
             {conversations.map((conversation, ind) => (

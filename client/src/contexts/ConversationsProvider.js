@@ -5,7 +5,7 @@ import { getCookie } from '../components/Cookie'
 import axios from 'axios'
 
 const ConversationsContext = React.createContext()
-const URL = "http://localhost:5000/"
+
 export function useConversations() {
     return useContext(ConversationsContext)
 }

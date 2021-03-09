@@ -3,7 +3,6 @@ import axios from 'axios'
 import { getCookie } from '../components/Cookie'
 
 const ContactsContext = React.createContext()
-const URL = "http://localhost:5000/"
 
 export function useContacts() {
     return useContext(ContactsContext)

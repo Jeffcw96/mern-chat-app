@@ -11,7 +11,7 @@ export default function FriendDetailModal({ friend, name, closeFriendModal }) {
     const { setContacts } = useContacts()
 
     async function updateFriendName(e) {
-        console.log("l;alalal")
+
         try {
             e.preventDefault()
             let jsonBody = {}
@@ -76,8 +76,8 @@ export default function FriendDetailModal({ friend, name, closeFriendModal }) {
                 <div className="profile-pic-container">
                     {
                         friend.picture ?
-                            <img src={friend.picture} className="avatar" style={{ width: '200px', height: '200px' }} /> :
-                            <img src={userImg} className="avatar" style={{ width: '200px', height: '200px' }} />
+                            <img src={friend.picture} className="avatar" style={{ width: '200px', height: '200px' }} alt="profile avatar" /> :
+                            <img src={userImg} className="avatar" style={{ width: '200px', height: '200px' }} alt="profile avatar" />
                     }
                 </div>
                 <Form onSubmit={updateFriendName}>
