@@ -15,7 +15,7 @@ require('dotenv').config()
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, STATICFOLDER)
+        cb(null, './routes/public')
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + '-' + file.originalname)
@@ -60,7 +60,8 @@ router.post('/uploadProfile', auth, async (req, res) => {
             }
             const fileName = req.file.filename.slice(0, req.file.filename.lastIndexOf("."))
             // const filePath = path.join(__dirname, '../' + STATICFOLDER + '/');
-            const filePath = path.join('../' + STATICFOLDER + '/');
+            // const filePath = path.join('./' + STATICFOLDER + '/');
+            const filePath = './routes/public/'
 
             const originalFileDestination = filePath + req.file.filename;
             const processedFileDestination = filePath + fileName + '.webp'
