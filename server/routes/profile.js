@@ -59,8 +59,8 @@ router.post('/uploadProfile', auth, async (req, res) => {
                 return
             }
             const fileName = req.file.filename.slice(0, req.file.filename.lastIndexOf("."))
-            const filePath = path.join(__dirname, '../' + STATICFOLDER + '/');
-
+            // const filePath = path.join(__dirname, '../' + STATICFOLDER + '/');
+            const filePath = path.join('../' + STATICFOLDER + '/');
 
             const originalFileDestination = filePath + req.file.filename;
             const processedFileDestination = filePath + fileName + '.webp'
