@@ -25,14 +25,14 @@ let io = socketio(server, {
     }
 });
 
-if (process.env.NODE_ENV === "production") {
-    io = socketio(server, {
-        cors: {
-            origin: "http://18.140.68.176",
-            methods: ["GET", "POST"]
-        }
-    });
-}
+// if (process.env.NODE_ENV === "production") {
+//     io = socketio(server, {
+//         cors: {
+//             origin: "http://18.140.68.176:80",
+//             methods: ["GET", "POST"]
+//         }
+//     });
+// }
 
 
 function arrayEquality(a, b) {
