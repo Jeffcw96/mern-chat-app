@@ -224,6 +224,7 @@ router.post('/forgotPassword', [check('email', 'Please enter a valid email').isE
             process.env.TOKEN,
             { expiresIn: '1800s' });
 
+
         const result = await aws.sendForgotPasswordTemplateEmail(email, process.env.SESSENDER, token)
         console.log("result", result)
         res.json({ desp: "Please check your email for password reset" })

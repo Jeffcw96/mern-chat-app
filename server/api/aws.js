@@ -60,7 +60,7 @@ const aws = {
                 ]
             },
             Source: sender, /* required */
-            Template: 'forgotPassword',
+            Template: 'forgotPasswordProduction',
             TemplateData: `{\"reset\":{\"token\":\"${token}\"}}`,
             ReplyToAddresses: [],
         };
