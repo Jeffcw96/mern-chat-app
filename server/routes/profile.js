@@ -65,6 +65,7 @@ router.post('/uploadProfile', auth, async (req, res) => {
             const originalFileDestination = filePath + req.file.filename;
             const processedFileDestination = filePath + fileName + '.webp'
 
+            console.log("filePath", filePath, 'processedFileDestination', processedFileDestination)
             console.log('req.file', req.file)
             sharp(originalFileDestination).resize(500).rotate().withMetadata().toFile(filePath + fileName + '.webp')
                 .then(data => {
@@ -79,8 +80,8 @@ router.post('/uploadProfile', auth, async (req, res) => {
                                 .then(response => { console.log("done") })
                             res.json({ location: userProfileImg });
 
-                            fs.unlinkSync(originalFileDestination)
-                            fs.unlinkSync(processedFileDestination)
+                            // fs.unlinkSync(originalFileDestination)
+                            // fs.unlinkSync(processedFileDestination)
                         })
                 })
                 .catch(err => { console.log("webp err", err) })
