@@ -100,17 +100,17 @@ router.post('/uploadProfile', auth, async (req, res) => {
                                 } else {
                                     console.info(`removed`, processedFileDestination);
                                 }
-                            });)
+                            });
+                        })
                 })
-        })
-            .catch(err => { console.log("webp err", err) })
-    });
+                .catch(err => { console.log("webp err", err) })
+        });
 
 
     } catch (error) {
-    console.error('error in uploading profile', error.message)
-    res.status(500).json({ error: error.message })
-}
+        console.error('error in uploading profile', error.message)
+        res.status(500).json({ error: error.message })
+    }
 })
 
 router.post("/updateInfo", auth, async (req, res) => {
