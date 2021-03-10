@@ -80,18 +80,37 @@ router.post('/uploadProfile', auth, async (req, res) => {
                                 .then(response => { console.log("done") })
                             res.json({ location: userProfileImg });
 
-                            // fs.unlinkSync(originalFileDestination)
-                            // fs.unlinkSync(processedFileDestination)
-                        })
+                            fs.unlink(originalFileDestination, function (err) {
+                                if (err && err.code == 'ENOENT') {
+                                    console.info(`${originalFileDestination} doesn't exist, won't remove it.`);
+                                } else if (err) {
+                                    // other errors, e.g. maybe we don't have enough permission
+                                    console.error("Error occurred while trying to remove file", err);
+                                } else {
+                                    console.info(`removed`, originalFileDestination);
+                                }
+                            });
+                            fs.unlink(processedFileDestination, function (err) {
+                                if (err && err.code == 'ENOENT') {
+                                    // file doens't exist
+                                    console.info(`${processedFileDestination} doesn't exist, won't remove it.`);
+                                } else if (err) {
+                                    // other errors, e.g. maybe we don't have enough permission
+                                    console.error("Error occurred while trying to remove file", err);
+                                } else {
+                                    console.info(`removed`, processedFileDestination);
+                                }
+                            });)
                 })
-                .catch(err => { console.log("webp err", err) })
-        });
+        })
+            .catch(err => { console.log("webp err", err) })
+    });
 
 
     } catch (error) {
-        console.error('error in uploading profile', error.message)
-        res.status(500).json({ error: error.message })
-    }
+    console.error('error in uploading profile', error.message)
+    res.status(500).json({ error: error.message })
+}
 })
 
 router.post("/updateInfo", auth, async (req, res) => {
